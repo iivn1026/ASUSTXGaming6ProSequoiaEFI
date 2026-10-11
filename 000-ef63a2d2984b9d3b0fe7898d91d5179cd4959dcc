@@ -1,0 +1,17 @@
+.DS_Store
+._*
+**/opencore-*.txt
+**/SysReport/
+**/NVRAM/
+**/nvram.plist
+**/nvram.fallback
+**/config.plist.*
+*.bak
+*.tmp
+*.log
+*.panic
+*.ips
+*.dSYM/
+*.img
+*.sparseimage
+*.zip
