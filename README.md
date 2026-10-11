@@ -42,7 +42,8 @@ Configuration checked on **11 October 2026**. Private identity information and u
 | Native Wi-Fi | **Working.** AirportItlwm 2.4.0 from the laobamac fork provides the native Wi-Fi interface; the active default route uses that interface. |
 | Internal speakers | **Working.** Speaker playback is confirmed with AppleALC and `alcid=97`. |
 | Headphone output | **Working.** Headphone playback is confirmed; the headset microphone is untested. |
-| Internal microphone / line input | **Detected; recording not tested.** These devices appear in macOS audio information. |
+| Internal microphone | **Working.** Internal microphone recording is confirmed. |
+| Line input | **Detected; recording not tested.** The device appears in macOS audio information. |
 | USB | **Mapped and partially tested.** USB 2.0/3.0 port objects are present; external USB keyboard/mouse and the internal camera enumerate. Every physical port, USB-C orientation and transfer speed still need individual tests. |
 | Keyboard / external mouse | Internal PS/2 keyboard and external USB HID devices are detected; special keys are not fully tested. |
 | Battery | **Status reporting works.** macOS reports the internal battery, charge level and AC power state. Battery endurance and sleep behavior are untested. |
@@ -62,7 +63,7 @@ Configuration checked on **11 October 2026**. Private identity information and u
 ### Configuration notes
 
 - The **20-core configuration** uses machine-specific `DSDT-FX608LM-20C.aml` and `APIC-FX608LM-20C.aml`. The early diagnostic patch that forced the CPU count to eight is disabled and omitted; `ProvideCurrentCpuInfo=true` is retained.
-- Audio playback is confirmed with **`alcid=97`**. Layout 97 is retained from the original configuration; microphone and headset pin routing remain untested. Do not remove this parameter merely because the system-visible `layout-id` differs.
+- Speaker playback, headphone output and internal microphone recording are confirmed with **`alcid=97`**. Layout 97 is retained from the original configuration; the headset microphone and line input remain untested. Do not remove this parameter merely because the system-visible `layout-id` differs.
 - **AirportItlwm** provides native Wi-Fi. The Ethernet-style `itlwm` + HeliPort setup is no longer used. The included binary matches the tested Sequoia Release build at commit **`9bc4b4d`**. The mutable alpha release tag may later point to different assets. Do not enable `itlwm` and AirportItlwm together.
 - This EFI was exported **after NVIDIA driver installation**, with `ResizeAppleGpuBars=-1` and `ResizeGpuBars=13` retained. EFI files alone do not install the NVIDIA driver, its auxiliary kernel collection, GPU bundles or firmware.
 - The iGPU is disabled and the dedicated GPU is used. macOS driver support for the Intel integrated GPU has not been demonstrated.
@@ -155,7 +156,8 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 | 原生 Wi-Fi | **可用。** laobamac 分支的 AirportItlwm 2.4.0 已建立系统 Wi-Fi 接口，当前默认网络出口使用该接口。 |
 | 内置扬声器 | **可用。** 扬声器播放已确认可用，使用 AppleALC 和 `alcid=97`。 |
 | 耳机输出 | **可用。** 耳机输出已确认可用；耳麦麦克风尚未测试。 |
-| 内置麦克风 / 线路输入 | **已识别，录音待测试。** 系统音频信息中已有设备。 |
+| 内置麦克风 | **可用。** 内置麦克风录音已确认可用。 |
+| 线路输入 | **已识别，录音待测试。** 系统音频信息中已有设备。 |
 | USB | **已映射，部分已测试。** 可见 USB 2.0 / 3.0 端口，外接键鼠和内置摄像头已枚举；仍需逐个实测接口、USB-C 正反插和传输速度。 |
 | 键盘 / 外接鼠标 | 内置 PS/2 键盘和外接 USB HID 设备已识别；特殊功能键尚未全部验证。 |
 | 电池 | **状态读取可用。** 系统能报告电量、内置电池和交流电供电状态；续航和睡眠表现未验证。 |
@@ -175,7 +177,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 ### 配置要点
 
 - **20 核配置**包含本机专用的 `DSDT-FX608LM-20C.aml` 和 `APIC-FX608LM-20C.aml`。早期强制返回 8 核的诊断补丁已禁用并移除，保留 `ProvideCurrentCpuInfo=true`。
-- 音频播放通过 **`alcid=97`** 已确认可用。布局 97 沿用旧配置，内置麦克风和耳麦引脚尚待测试。系统可见的 `layout-id` 与它不同，不是直接删除该参数的依据。
+- 使用 **`alcid=97`**，扬声器播放、耳机输出及内置麦克风录音均已确认可用。布局 97 沿用旧配置，耳麦麦克风和线路输入尚未测试。系统可见的 `layout-id` 与它不同，不是直接删除该参数的依据。
 - **AirportItlwm** 提供原生无线接口，不再使用以太网形式的 `itlwm + HeliPort`。随包二进制与已测试的 Sequoia Release 构建 **`9bc4b4d`** 一致；alpha 发布标签以后可能更新到其他构建。不要同时启用 itlwm 和 AirportItlwm。
 - 这套 EFI 导出于 **NVIDIA 驱动安装完成后**，保留 `ResizeAppleGpuBars=-1`、`ResizeGpuBars=13`。只复制 EFI 并不会安装 NVIDIA 系统驱动、辅助内核集合、GPU bundle 或固件。
 - 核显已禁用，目前使用独显；Intel 核显的 macOS 驱动支持尚未验证。
