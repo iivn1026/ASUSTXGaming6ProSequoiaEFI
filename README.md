@@ -1,6 +1,6 @@
 # ASUSTXGaming6ProSequoiaEFI
 
-ASUS TX Gaming FX608LM — macOS Sequoia EFI
+ASUS TX Gaming FX608LM — macOS Sequoia EFI with OpenCanopy GUI
 
 [English](#english) · [简体中文](#简体中文)
 
@@ -38,7 +38,7 @@ Configuration checked on **11 October 2026**. Private identity information and u
 |---|---|
 | Internal SSD boot | **Working.** The running OpenCore boot path points to the SanDisk SSD's EFI partition; the installation boots without the installer USB. |
 | CPU enumeration | **Working.** macOS reports 20 active physical/logical CPUs. Full power-management and stress testing remain pending. |
-| NVIDIA graphics | **Working in the current installation.** The system reports RTX 5060 Laptop, 8 GB VRAM and **Metal 3**; the internal display is online. NVIDIA system drivers must be installed separately. |
+| NVIDIA graphics | **Display output works.** The system reports RTX 5060 Laptop, 8 GB VRAM and **Metal 3**, and Metal device enumeration succeeds. Application acceleration is not fully compatible; Chrome uses software rendering. NVIDIA system drivers must be installed separately. |
 | Native Wi-Fi | **Working.** AirportItlwm 2.4.0 from the laobamac fork provides the native Wi-Fi interface; the active default route uses that interface. |
 | Internal speakers | **Working.** Speaker playback is confirmed with AppleALC and `alcid=97`. |
 | Headphone output | **Working.** Headphone playback is confirmed; the headset microphone is untested. |
@@ -59,9 +59,28 @@ Configuration checked on **11 October 2026**. Private identity information and u
 3. **Bluetooth is unavailable.** The Intel Bluetooth kexts are disabled and excluded from this minimal package.
 4. **Startup stability is still under observation.** Intermittent boot failures occurred during bring-up. Reset NVRAM did not consistently solve them. Long-term warm/cold boot reliability remains unverified; a recovery USB is recommended.
 5. The Wi-Fi driver is an **alpha** build. Its upstream documentation lists limitations including WPA3-only networks and AWDL/AirDrop. These features are not verified on this machine.
+6. **Chrome hardware acceleration is unavailable in the tested combination.** Chrome 155 reports software rendering after EGL/ANGLE GPU initialization failures. Metal device enumeration succeeds; the system reporting Metal support does not establish acceleration compatibility for every application.
+
+### Graphical boot menu
+
+- **OpenCanopy**, using the same **DBG-109-2026-09-30** build as OpenCore, with **Acidanthera\GoldenGate** icons.
+- **Plain black background; no wallpaper.** The optional background image is omitted; `DefaultBackgroundColor=00000000` is retained.
+- The local configuration arranges **macOS first and Windows second**, with macOS selected by default and a **5-second** timeout. The exported demonstration configuration does not contain the machine's saved NVRAM boot selection.
+- **Space** reveals Recovery, Reset NVRAM and the NVIDIA recovery tool. `HideAuxiliary=true`; the recovery tool is marked auxiliary. Arrow keys and Enter select a system.
+- The Windows entry in the public config is a **disabled template** with a zero partition UUID. Its real SSD device path has been removed. On a Windows EFI without the visibility markers below, native Windows scanning remains available and its position follows firmware order. For automatic scanning, remove markers left by an earlier custom-entry setup; otherwise Windows can remain hidden while the template is disabled.
+
+To reproduce the local two-system ordering:
+
+1. Obtain the target Windows loader's complete UEFI device path from an OpenCore debug log. Replace the placeholder `Misc → Entries → Windows → Path` with that path and enable the entry.
+2. Only after the custom path is configured, copy the two `.contentVisibility` files under `Extras/Windows-visibility/EFI/` to their corresponding locations on the **Windows EFI partition**. They suppress the duplicate automatic Windows entry and make a fallback EFI entry auxiliary **only for the `TXGaming` OpenCore instance**. The original Windows bootloader is not included or replaced.
+3. Keep `InstanceIdentifier=TXGaming` and `HideAuxiliary=true`. Native macOS stays before the custom Windows entry when auxiliary entries are hidden.
+4. In the OC menu, select macOS and press **Ctrl + Enter** once to save it as the default. Put the internal SSD's OpenCore entry first in the firmware boot priority to enter OC at power-on.
+
+The GUI and exported config pass static validation. The sanitized public copy has not been boot-tested.
 
 ### Configuration notes
 
+- **Verbose boot logging (`-v`) is retained in the shared configuration.**
 - The **20-core configuration** uses machine-specific `DSDT-FX608LM-20C.aml` and `APIC-FX608LM-20C.aml`. The early diagnostic patch that forced the CPU count to eight is disabled and omitted; `ProvideCurrentCpuInfo=true` is retained.
 - Speaker playback, headphone output and internal microphone recording are confirmed with **`alcid=97`**. Layout 97 is retained from the original configuration; the headset microphone and line input remain untested. Do not remove this parameter merely because the system-visible `layout-id` differs.
 - **AirportItlwm** provides native Wi-Fi. The Ethernet-style `itlwm` + HeliPort setup is no longer used. The included binary matches the tested Sequoia Release build at commit **`9bc4b4d`**. The mutable alpha release tag may later point to different assets. Do not enable `itlwm` and AirportItlwm together.
@@ -82,9 +101,11 @@ EFI/
     OpenCore.efi
     config.plist
     ACPI/       # enabled machine-specific tables
-    Drivers/    # HfsPlus, OpenRuntime, ResetNvramEntry
+    Drivers/    # HfsPlus, OpenRuntime, OpenCanopy, ResetNvramEntry
     Kexts/      # enabled bundles, with their original plug-ins/resources
-    Tools/      # the configured NVIDIA recovery tool
+    Tools/      # the configured NVIDIA recovery tool (hidden until Space)
+    Resources/  # active icons, labels and bitmap fonts; no wallpaper
+Extras/Windows-visibility/  # optional OC-specific visibility markers
 LICENSES/       # available upstream license notices
 README.md
 THIRD_PARTY_NOTICES.md
@@ -92,9 +113,9 @@ SHA256SUMS.txt
 .gitignore
 ```
 
-Excluded files and data include real serials and MAC/ROM values, Wi-Fi hotspot settings, stale Bluetooth controller data, old configs/kext backups, boot logs, screenshots, local scripts and disk images. Unused OpenCanopy images/fonts/audio are omitted because this configuration uses the **Builtin** picker with audio assist disabled. No NVIDIA files from `/Library/Extensions`, `/Library/GPUBundles` or firmware directories are redistributed in this EFI package.
+Excluded files and data include real serials and MAC/ROM values, Wi-Fi hotspot settings, stale Bluetooth controller data, old configs/kext backups, boot logs, screenshots, local scripts and disk images. OpenCanopy icons, labels and bitmap fonts are included for the active GoldenGate theme. Wallpaper, audio-assist resources and unused text fonts are omitted. The Windows disk path is replaced with a disabled template; saved NVRAM boot choices are not distributed. No NVIDIA files from `/Library/Extensions`, `/Library/GPUBundles` or firmware directories are redistributed in this EFI package.
 
-Enabled file references and ACPI checksums have been checked. The exported config passes **ocvalidate 1.0.8** structure checks; this is not a substitute for validation with the exact recorded development build or for a boot test. Three missing driver `HideVerbose` fields were filled with their default value, `false`; the working EFI was not changed.
+Enabled file references, ACPI checksums and required OpenCanopy resources have been checked. The exported config passes **ocvalidate 1.0.9 from the exact same OpenCore build**. Core OpenCore binaries and enabled hardware kexts are preserved; identity and disk-path redaction is applied only to the public copy. Validation does not replace an actual boot test.
 
 ### Before using this package
 
@@ -152,7 +173,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 |---|---|
 | 内置 SSD 启动 | **可用。** 当前 OpenCore 启动路径指向 SanDisk 内置 EFI，已能脱离安装 U 盘启动。 |
 | CPU 枚举 | **可用。** 系统实测 20 个物理 / 逻辑核心在线；完整电源管理和压力测试尚未完成。 |
-| NVIDIA 显卡 | **当前系统中可用。** 识别 RTX 5060 Laptop、8GB 显存和 **Metal 3**，内屏在线；NVIDIA 系统驱动需要另外安装。 |
+| NVIDIA 显卡 | **显示输出可用。** 识别 RTX 5060 Laptop、8GB 显存和 **Metal 3**，Metal 设备枚举成功。应用加速兼容性不完整，Chrome 使用软件渲染；NVIDIA 系统驱动需要另外安装。 |
 | 原生 Wi-Fi | **可用。** laobamac 分支的 AirportItlwm 2.4.0 已建立系统 Wi-Fi 接口，当前默认网络出口使用该接口。 |
 | 内置扬声器 | **可用。** 扬声器播放已确认可用，使用 AppleALC 和 `alcid=97`。 |
 | 耳机输出 | **可用。** 耳机输出已确认可用；耳麦麦克风尚未测试。 |
@@ -173,9 +194,28 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 3. **蓝牙不可用。** 相关 Intel 蓝牙 kext 已禁用，精简包未包含这些文件。
 4. **开机稳定性仍在观察。** 调试阶段出现过偶发启动失败，Reset NVRAM 未能稳定解决问题。长期冷启动 / 热重启稳定性尚未验证，建议保留回退 U 盘。
 5. Wi-Fi 驱动为 **alpha** 构建。上游注明纯 WPA3、AWDL / AirDrop 等存在功能限制，这些功能尚未在本机验证。
+6. **已测试的 Chrome 与驱动组合无法使用硬件加速。** Chrome 155 因 EGL / ANGLE GPU 初始化失败而使用软件渲染。Metal 设备枚举成功，但系统报告支持 Metal，不代表所有应用都能正常使用硬件加速。
+
+### 图形启动菜单
+
+- 使用 **OpenCanopy**，与 OpenCore 同属 **DBG-109-2026-09-30** 构建，主题为 **Acidanthera\GoldenGate**。
+- **纯黑背景，无壁纸。** 不包含可选背景图片，保留 `DefaultBackgroundColor=00000000`。
+- 本地配置为 **macOS 第一位、Windows 第二位**，默认 macOS，等待 **5 秒**后启动。公开演示配置不包含本机 NVRAM 中保存的默认启动选择。
+- 按**空格**显示恢复分区、Reset NVRAM 和 NVIDIA 回退工具。启用 `HideAuxiliary=true`，回退工具标为辅助项目。方向键选择，回车启动。
+- 公开配置中的 Windows 项为**默认禁用的模板**，分区 UUID 使用全零占位符，真实 SSD 路径已脱敏。Windows EFI 未放置下述显示标记时，可由 OC 自动扫描 Windows，但顺序取决于固件。若改回自动扫描，应移除旧自定义启动配置留下的显示标记，否则模板禁用时 Windows 可能仍被隐藏。
+
+复现本地双系统排列的方法：
+
+1. 从 OC 调试日志取得目标 Windows 启动器的完整 UEFI 设备路径，替换 `Misc → Entries → Windows → Path` 并启用该项目。
+2. 确认自定义路径配置完成后，将 `Extras/Windows-visibility/EFI/` 下的两个 `.contentVisibility` 文件复制到 **Windows EFI 分区**对应位置。它们仅对 `TXGaming` 这一 OC 实例隐藏重复的自动 Windows 项，并把备用 EFI 项设为辅助项目；不包含或替换 Windows 原启动器。
+3. 保留 `InstanceIdentifier=TXGaming` 和 `HideAuxiliary=true`。隐藏辅助项目时，原生 macOS 项排在自定义 Windows 项之前。
+4. 在 OC 菜单中选中 macOS，按一次 **Ctrl + Enter** 保存默认选择。在 BIOS 中将内置 SSD 的 OpenCore 项放在启动优先级第一位，即可开机先进入 OC。
+
+图形菜单配置及导出副本已通过静态校验；脱敏公开副本尚未进行启动测试。
 
 ### 配置要点
 
+- **公开配置保留 `-v` 啰嗦启动日志参数。**
 - **20 核配置**包含本机专用的 `DSDT-FX608LM-20C.aml` 和 `APIC-FX608LM-20C.aml`。早期强制返回 8 核的诊断补丁已禁用并移除，保留 `ProvideCurrentCpuInfo=true`。
 - 使用 **`alcid=97`**，扬声器播放、耳机输出及内置麦克风录音均已确认可用。布局 97 沿用旧配置，耳麦麦克风和线路输入尚未测试。系统可见的 `layout-id` 与它不同，不是直接删除该参数的依据。
 - **AirportItlwm** 提供原生无线接口，不再使用以太网形式的 `itlwm + HeliPort`。随包二进制与已测试的 Sequoia Release 构建 **`9bc4b4d`** 一致；alpha 发布标签以后可能更新到其他构建。不要同时启用 itlwm 和 AirportItlwm。
@@ -187,11 +227,11 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 
 **序列号、MLB、UUID 和 ROM 已替换成新生成的演示值。用于 Apple 服务之前，必须在本机重新生成并替换这四项，不要共用公开身份。** SMBIOS 机型仍为 MacBookPro16,2。这些演示值用于保护私人身份信息，不代表 Apple 服务已激活或具有真实设备身份。
 
-包中仅保留启动器、启用的 ACPI 表、UEFI 驱动、kext bundle、配置文件和已配置的 NVIDIA 回退工具，另附 README、上游许可证声明、校验清单和 `.gitignore`。启用的 kext 保留原有插件 / 资源，以维护 bundle 完整性。
+包中保留启动器、启用的 ACPI 表、UEFI 驱动、kext bundle、配置文件、NVIDIA 回退工具及 OpenCanopy 所需图标、标签和位图字体，另附可选 Windows 显示标记模板、README、上游许可证声明、校验清单和 `.gitignore`。启用的 kext 保留原有插件 / 资源，以维护 bundle 完整性。
 
-已移除真实三码、MAC / ROM、热点配置、旧蓝牙控制器状态、历史配置与 kext 备份、启动日志、截图、本地脚本和磁盘镜像。当前使用 **Builtin** 菜单并关闭音频辅助，因此不附带未使用的 OpenCanopy 图片、字体和语音资源。EFI 包不重新分发系统目录中的 NVIDIA 驱动、GPU bundle 和固件。
+已移除真实三码、MAC / ROM、热点配置、旧蓝牙控制器状态、历史配置与 kext 备份、启动日志、截图、本地脚本和磁盘镜像。当前使用 **OpenCanopy 图形菜单**，包含 GoldenGate 主题图标、标签和位图字体，不附带壁纸、音频辅助资源和未使用的文本字体。Windows 磁盘设备路径已改为禁用模板，NVRAM 中保存的默认启动选择不随包分发。EFI 包不重新分发系统目录中的 NVIDIA 驱动、GPU bundle 和固件。
 
-所有启用文件路径和 ACPI 校验和已检查。导出的配置通过 **ocvalidate 1.0.8** 结构检查；它不能替代对实际开发构建的验证和重新启动测试。三个 UEFI 驱动缺失的 `HideVerbose` 字段在导出副本中补为默认值 `false`，正在使用的 EFI 没有改动。
+所有启用文件路径、ACPI 校验和及 OpenCanopy 必需资源均已检查。导出配置通过**与当前 OpenCore 完全相同构建中的 ocvalidate 1.0.9** 校验。OpenCore 核心二进制及启用的硬件 kext 保持原样，身份与磁盘路径脱敏仅作用于公开副本。静态校验不能替代实际启动测试。
 
 ### 使用前
 

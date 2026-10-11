@@ -926,9 +926,9 @@
 			<key>HibernateSkipsPicker</key>
 			<false/>
 			<key>HideAuxiliary</key>
-			<false/>
+			<true/>
 			<key>InstanceIdentifier</key>
-			<string></string>
+			<string>TXGaming</string>
 			<key>LauncherOption</key>
 			<string>Disabled</string>
 			<key>LauncherPath</key>
@@ -938,9 +938,9 @@
 			<key>PickerAudioAssist</key>
 			<false/>
 			<key>PickerMode</key>
-			<string>Builtin</string>
+			<string>External</string>
 			<key>PickerVariant</key>
-			<string>Auto</string>
+			<string>Acidanthera\GoldenGate</string>
 			<key>PollAppleHotKeys</key>
 			<false/>
 			<key>ShowPicker</key>
@@ -970,7 +970,26 @@
 			<integer>67</integer>
 		</dict>
 		<key>Entries</key>
-		<array/>
+		<array>
+			<dict>
+				<key>Arguments</key>
+				<string></string>
+				<key>Auxiliary</key>
+				<false/>
+				<key>Comment</key>
+				<string>Disabled template: replace with the target Windows bootloader device path before enabling</string>
+				<key>Enabled</key>
+				<false/>
+				<key>Flavour</key>
+				<string>Windows</string>
+				<key>Name</key>
+				<string>Windows</string>
+				<key>Path</key>
+				<string>HD(1,GPT,00000000-0000-0000-0000-000000000000,0x800,0x82000)/\EFI\Microsoft\Boot\bootmgfw.efi</string>
+				<key>TextMode</key>
+				<false/>
+			</dict>
+		</array>
 		<key>Security</key>
 		<dict>
 			<key>AllowSetDefault</key>
@@ -1044,7 +1063,7 @@
 				<key>Arguments</key>
 				<string></string>
 				<key>Auxiliary</key>
-				<false/>
+				<true/>
 				<key>Comment</key>
 				<string>NullMoth: remove the NVIDIA driver at the next start</string>
 				<key>Enabled</key>
@@ -1178,12 +1197,12 @@
 			<key>MaxBIOSVersion</key>
 			<false/>
 			<key>MLB</key>
-			<string>C02114501GUP8PGJC</string>
+			<string>C02047303J9P8PG8C</string>
 			<key>ProcessorType</key>
 			<integer>3841</integer>
 			<key>ROM</key>
 			<data>
-			Dva3wgrx
+			clUiXFux
 			</data>
 			<key>SpoofVendor</key>
 			<true/>
@@ -1192,9 +1211,9 @@
 			<key>SystemProductName</key>
 			<string>MacBookPro16,2</string>
 			<key>SystemSerialNumber</key>
-			<string>C02FJGZDML7H</string>
+			<string>C02DQMZZML7H</string>
 			<key>SystemUUID</key>
-			<string>CA44B085-B551-4D8D-84A4-2BC023886FB7</string>
+			<string>33A20830-17B9-40E6-B16C-FCC87D36E582</string>
 		</dict>
 		<key>UpdateDataHub</key>
 		<true/>
@@ -1323,6 +1342,20 @@
 				<string>ResetNvramEntry.efi</string>
 				<key>HideVerbose</key>
 				<false/>
+			</dict>
+			<dict>
+				<key>Arguments</key>
+				<string></string>
+				<key>Comment</key>
+				<string>Apple-style graphical boot picker</string>
+				<key>Enabled</key>
+				<true/>
+				<key>HideVerbose</key>
+				<false/>
+				<key>LoadEarly</key>
+				<false/>
+				<key>Path</key>
+				<string>OpenCanopy.efi</string>
 			</dict>
 		</array>
 		<key>Input</key>

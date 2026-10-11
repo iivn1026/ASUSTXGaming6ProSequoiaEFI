@@ -6,7 +6,8 @@ This package is a collection of machine configuration files and third-party boot
 
 | Component | Recorded version / origin | Upstream / notice |
 |---|---|---|
-| OpenCore / OpenRuntime / ResetNvramEntry | DBG-109-2026-09-30 | [OpenCorePkg](https://github.com/acidanthera/OpenCorePkg), `LICENSES/OpenCorePkg.txt` |
+| OpenCore / OpenRuntime / OpenCanopy / ResetNvramEntry | DBG-109-2026-09-30 | [OpenCorePkg](https://github.com/acidanthera/OpenCorePkg), `LICENSES/OpenCorePkg.txt` |
+| OpenCanopy fonts, labels and GoldenGate icons | Existing working Resources; background image excluded | [OcBinaryData](https://github.com/acidanthera/OcBinaryData); upstream resources and authorship retained |
 | HfsPlus | Existing EFI binary | [OcBinaryData](https://github.com/acidanthera/OcBinaryData); retain the upstream binary's terms |
 | Lilu | 1.7.3 | [Lilu](https://github.com/acidanthera/Lilu), `LICENSES/Lilu.txt` |
 | AppleALC | 1.9.9 | [AppleALC](https://github.com/acidanthera/AppleALC), `LICENSES/AppleALC.txt` |
