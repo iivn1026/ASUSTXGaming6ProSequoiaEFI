@@ -38,7 +38,7 @@ Configuration checked on **14 October 2026**, after reboot verification of touch
 |---|---|
 | Internal SSD boot | **Working.** The running OpenCore boot path points to the SanDisk SSD's EFI partition; the installation boots without the installer USB. |
 | CPU enumeration | **Working.** macOS reports 20 active physical/logical CPUs. Full power-management and stress testing remain pending. |
-| NVIDIA graphics | **Display output works.** The system reports RTX 5060 Laptop, 8 GB VRAM and **Metal 3**, and Metal device enumeration succeeds. Application acceleration is not fully compatible; Chrome uses software rendering. NVIDIA system drivers must be installed separately. |
+| NVIDIA graphics | **Display output works.** The system reports RTX 5060 Laptop, 8 GB VRAM and **Metal 3**, and Metal device enumeration succeeds. Application compatibility varies; an earlier Chrome 155 test used software rendering, and acceleration has not been rechecked after subsequent NVIDIA driver updates. NVIDIA system drivers must be installed separately. |
 | Native Wi-Fi | **Working.** AirportItlwm 2.4.0 from the laobamac fork provides the native Wi-Fi interface; the active default route uses that interface. |
 | Internal speakers | **Working.** Speaker playback is confirmed with AppleALC and `alcid=97`. |
 | Headphone output | **Working.** Headphone playback is confirmed; the headset microphone is untested. |
@@ -180,7 +180,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 |---|---|
 | 内置 SSD 启动 | **可用。** 当前 OpenCore 启动路径指向 SanDisk 内置 EFI，已能脱离安装 U 盘启动。 |
 | CPU 枚举 | **可用。** 系统实测 20 个物理 / 逻辑核心在线；完整电源管理和压力测试尚未完成。 |
-| NVIDIA 显卡 | **显示输出可用。** 识别 RTX 5060 Laptop、8GB 显存和 **Metal 3**，Metal 设备枚举成功。应用加速兼容性不完整，Chrome 使用软件渲染；NVIDIA 系统驱动需要另外安装。 |
+| NVIDIA 显卡 | **显示输出可用。** 识别 RTX 5060 Laptop、8GB 显存和 **Metal 3**，Metal 设备枚举成功。应用加速兼容性因应用而异；此前 Chrome 155 测试使用软件渲染，后续 NVIDIA 驱动更新后的应用加速尚未重新核对。NVIDIA 系统驱动需要另外安装。 |
 | 原生 Wi-Fi | **可用。** laobamac 分支的 AirportItlwm 2.4.0 已建立系统 Wi-Fi 接口，当前默认网络出口使用该接口。 |
 | 内置扬声器 | **可用。** 扬声器播放已确认可用，使用 AppleALC 和 `alcid=97`。 |
 | 耳机输出 | **可用。** 耳机输出已确认可用；耳麦麦克风尚未测试。 |
