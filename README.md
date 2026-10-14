@@ -10,7 +10,7 @@ ASUS TX Gaming FX608LM — macOS Sequoia EFI with OpenCanopy GUI
 
 Sanitized OpenCore EFI for **ASUS TX Gaming FX608LM**. macOS Sequoia is installed on a separate SanDisk SSD; Windows remains on the original Samsung SSD.
 
-Configuration checked on **14 October 2026**, after reboot verification of touchpad and Bluetooth repairs. Private identity information and unused files have been removed from the working EFI. The sanitized copy has not been boot-tested, and compatibility with other ASUS models has not been verified.
+Configuration checked on **14 October 2026**. Private identity information and unused files have been removed from the working EFI. The sanitized copy has not been boot-tested, and compatibility with other ASUS models has not been verified.
 
 ### Hardware and tested environment
 
@@ -48,8 +48,8 @@ Configuration checked on **14 October 2026**, after reboot verification of touch
 | Keyboard / external mouse | Internal PS/2 keyboard and external USB HID devices are detected; special keys are not fully tested. |
 | Battery | **Status reporting works.** macOS reports the internal battery, charge level and AC power state. Battery endurance and sleep behavior are untested. |
 | Ethernet | **Driver loaded; cable test pending.** RTL8111 is present as an interface, but wired connectivity has not been verified. |
-| Bluetooth | **Working after reboot.** IntelBluetoothFirmware 2.5.0, IntelBTPatcher 2.5.0 and BlueToolFixup 2.7.3 are enabled; operation confirmed on this machine. Full Continuity compatibility is not claimed. |
-| Touchpad | **Working after reboot.** ASCE1200 I2C-HID binds to VoodooI2CHID and its precision touchpad event driver, using an exact `8086:7F4F` I2C3 controller match and polling mode. Full gesture and sleep/wake testing remain incomplete. |
+| Bluetooth | **Working.** IntelBluetoothFirmware 2.5.0, IntelBTPatcher 2.5.0 and BlueToolFixup 2.7.3 are enabled; operation confirmed on this machine. Full Continuity compatibility is not claimed. |
+| Touchpad | **Working.** ASCE1200 I2C-HID binds to VoodooI2CHID and its precision touchpad event driver, using an exact `8086:7F4F` I2C3 controller match and polling mode. Full gesture and sleep/wake testing remain incomplete. |
 | Sleep / wake, sensors, HDMI audio, Apple services | **Not fully verified.** Functional testing for these features is incomplete. |
 
 ### Known issues
@@ -64,7 +64,7 @@ Configuration checked on **14 October 2026**, after reboot verification of touch
 
 - **Touchpad:** `VoodooI2C.kext/Contents/Info.plist` adds `VoodooI2CPCIArrowLakeHX_I2C3`, matching only `0x7f4f8086`. Timing: 133 MHz I2C clock, 42 ns SDA hold, 171 ns SDA fall and 208 ns SCL fall, following the matching controller in the [Linux LPSS source](https://github.com/torvalds/linux/blob/master/drivers/mfd/intel-lpss-pci.c). Existing `-vi2c-force-polling`, XOSI and ACPI are retained. GPIO interrupt support is not claimed.
 - **Bluetooth:** the existing firmware, patcher and fixup bundles are enabled. `bluetoothInternalControllerInfo` is **14 zero bytes**; `bluetoothExternalDongleFailed` is **one zero byte**, with the corresponding NVRAM Delete entries, as documented by [BlueToolFixup](https://github.com/acidanthera/BrcmPatchRAM#bluetoolfixupkext). No IntelBluetoothInjector is included.
-- **After reboot:** AirportItlwm 2.4.0 still loads, native Wi-Fi is on, the default route uses `en1`, HTTPS connectivity succeeds, and the touchpad remains bound. The Bluetooth repair did not change Wi-Fi, USB mapping, touchpad, audio, ACPI or graphics-driver files.
+- **Current status:** AirportItlwm 2.4.0 still loads, native Wi-Fi is on, the default route uses `en1`, HTTPS connectivity succeeds, and the touchpad remains bound. The Bluetooth repair did not change Wi-Fi, USB mapping, touchpad, audio, ACPI or graphics-driver files.
 - **Existing fan bridge:** `TXGamingFanBridge.kext` and `SSDT-TXGFAN.aml` were already present in the working source EFI and are retained. Fan telemetry/profile control remain experimental, not fully verified features. The separate fan-control app is not included.
 
 ### Graphical boot menu
@@ -152,7 +152,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 
 适用于 **华硕 TX Gaming FX608LM** 的脱敏 OpenCore EFI。macOS Sequoia 安装在独立的 SanDisk SSD 上，原 Samsung SSD 上的 Windows 单独保留。
 
-配置检查日期为 **2026 年 10 月 14 日**，触控板与蓝牙修复均已完成重启验证。分享前已移除私人身份信息和冗余文件。脱敏后的副本尚未重新进行启动测试，也未验证对其他华硕机型的兼容性。
+配置检查日期为 **2026 年 10 月 14 日**。分享前已移除私人身份信息和冗余文件。脱敏后的副本尚未重新进行启动测试，也未验证对其他华硕机型的兼容性。
 
 ### 硬件与测试环境
 
@@ -190,8 +190,8 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 | 键盘 / 外接鼠标 | 内置 PS/2 键盘和外接 USB HID 设备已识别；特殊功能键尚未全部验证。 |
 | 电池 | **状态读取可用。** 系统能报告电量、内置电池和交流电供电状态；续航和睡眠表现未验证。 |
 | 有线网卡 | **驱动已加载，网线实测待完成。** 已有 RTL8111 接口，未确认有线联网。 |
-| 蓝牙 | **重启后可用。** 使用 IntelBluetoothFirmware 2.5.0、IntelBTPatcher 2.5.0 和 BlueToolFixup 2.7.3，已在本机确认生效；不代表完整连续互通功能可用。 |
-| 触控板 | **重启后可用。** ASCE1200 I2C-HID 已绑定 VoodooI2CHID 和精密触控板事件驱动，使用 I2C3 控制器 `8086:7F4F` 精确匹配和轮询模式；全部手势及睡眠唤醒尚未完整测试。 |
+| 蓝牙 | **可用。** 使用 IntelBluetoothFirmware 2.5.0、IntelBTPatcher 2.5.0 和 BlueToolFixup 2.7.3，已在本机确认生效；不代表完整连续互通功能可用。 |
+| 触控板 | **可用。** ASCE1200 I2C-HID 已绑定 VoodooI2CHID 和精密触控板事件驱动，使用 I2C3 控制器 `8086:7F4F` 精确匹配和轮询模式；全部手势及睡眠唤醒尚未完整测试。 |
 | 睡眠唤醒、传感器、HDMI 音频、Apple 服务 | **未完整验证。** 这些功能尚未完成实际测试。 |
 
 ### 已知问题
@@ -206,7 +206,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 
 - **触控板：** 在 `VoodooI2C.kext/Contents/Info.plist` 中增加 `VoodooI2CPCIArrowLakeHX_I2C3`，仅匹配 `0x7f4f8086`。时序为 133MHz I2C 时钟、42ns SDA hold、171ns SDA fall、208ns SCL fall，依据 [Linux LPSS 源码](https://github.com/torvalds/linux/blob/master/drivers/mfd/intel-lpss-pci.c) 中该控制器的配置。保留 `-vi2c-force-polling`、XOSI 和现有 ACPI；不宣称 GPIO 中断模式已支持。
 - **蓝牙：** 启用已有固件、补丁和修复 bundle。按 [BlueToolFixup 官方说明](https://github.com/acidanthera/BrcmPatchRAM#bluetoolfixupkext) 保留 `bluetoothInternalControllerInfo` 为 **14 字节全零**，`bluetoothExternalDongleFailed` 为 **1 字节全零**及对应 NVRAM Delete 项；不包含 IntelBluetoothInjector。
-- **重启核对：** AirportItlwm 2.4.0 仍加载，原生 Wi-Fi 开启，默认路由为 `en1`，HTTPS 联网测试通过，触控板仍保持绑定。蓝牙修复未改动 Wi-Fi、USB 映射、触控板、声卡、ACPI 和显卡驱动文件。
+- **当前状态：** AirportItlwm 2.4.0 仍加载，原生 Wi-Fi 开启，默认路由为 `en1`，HTTPS 联网测试通过，触控板仍保持绑定。蓝牙修复未改动 Wi-Fi、USB 映射、触控板、声卡、ACPI 和显卡驱动文件。
 - **已有风扇桥接：** 可用源 EFI 中已有 `TXGamingFanBridge.kext` 和 `SSDT-TXGFAN.aml`，本次保留。风扇读数及固件模式控制属于实验功能，不列为已完整验证的设备；单独的风扇助手应用不包含在此仓库中。
 
 ### 图形启动菜单
