@@ -10,7 +10,7 @@ ASUS TX Gaming FX608LM — macOS Sequoia EFI with OpenCanopy GUI
 
 Sanitized OpenCore EFI for **ASUS TX Gaming FX608LM**. macOS Sequoia is installed on a separate SanDisk SSD; Windows remains on the original Samsung SSD.
 
-Configuration checked on **11 October 2026**. Private identity information and unused files have been removed from the working EFI. The sanitized copy has not been boot-tested, and compatibility with other ASUS models has not been verified.
+Configuration checked on **14 October 2026**, after reboot verification of touchpad and Bluetooth repairs. Private identity information and unused files have been removed from the working EFI. The sanitized copy has not been boot-tested, and compatibility with other ASUS models has not been verified.
 
 ### Hardware and tested environment
 
@@ -22,7 +22,7 @@ Configuration checked on **11 October 2026**. Private identity information and u
 | Memory | **32 GB** |
 | Dedicated GPU | NVIDIA GeForce **RTX 5060 Laptop GPU**, `10DE:2D59`, **8 GB VRAM** |
 | Integrated GPU | Intel `8086:7D67`; disabled in this configuration |
-| Internal display | **2560 × 1600**, currently reported at **60 Hz** |
+| Internal display | **16-inch, 2560 × 1600**, currently reported at **165 Hz** |
 | Wi-Fi / Bluetooth | Intel **AX210**, Wi-Fi `8086:2725`, Bluetooth USB `8087:0032` |
 | Ethernet | Realtek **RTL8111 family**, `10EC:8168` |
 | Audio | Realtek **ALC256**, `10EC:0256`, ASUS subsystem `1043:1064`; Intel SST controller `8086:7F50` |
@@ -48,18 +48,24 @@ Configuration checked on **11 October 2026**. Private identity information and u
 | Keyboard / external mouse | Internal PS/2 keyboard and external USB HID devices are detected; special keys are not fully tested. |
 | Battery | **Status reporting works.** macOS reports the internal battery, charge level and AC power state. Battery endurance and sleep behavior are untested. |
 | Ethernet | **Driver loaded; cable test pending.** RTL8111 is present as an interface, but wired connectivity has not been verified. |
-| Bluetooth | **Not working in this configuration.** Intel Bluetooth hardware is detected over USB, but its firmware/patch/fixup kexts are disabled. |
-| Touchpad | **Not working.** The included input kexts do not provide a working touchpad. |
+| Bluetooth | **Working after reboot.** IntelBluetoothFirmware 2.5.0, IntelBTPatcher 2.5.0 and BlueToolFixup 2.7.3 are enabled; operation confirmed on this machine. Full Continuity compatibility is not claimed. |
+| Touchpad | **Working after reboot.** ASCE1200 I2C-HID binds to VoodooI2CHID and its precision touchpad event driver, using an exact `8086:7F4F` I2C3 controller match and polling mode. Full gesture and sleep/wake testing remain incomplete. |
 | Sleep / wake, sensors, HDMI audio, Apple services | **Not fully verified.** Functional testing for these features is incomplete. |
 
 ### Known issues
 
 1. **Intermittent screen flicker / flashing during startup.** The screen sometimes flickers or flashes while booting. This bug is **unresolved**; its exact timing and cause have not been isolated. The display works after a successful boot, but the startup display transition is not always smooth.
-2. **Touchpad does not work.** ACPI, controller and device binding require further investigation.
-3. **Bluetooth is unavailable.** The Intel Bluetooth kexts are disabled and excluded from this minimal package.
-4. **Startup stability is still under observation.** Intermittent boot failures occurred during bring-up. Reset NVRAM did not consistently solve them. Long-term warm/cold boot reliability remains unverified; a recovery USB is recommended.
-5. The Wi-Fi driver is an **alpha** build. Its upstream documentation lists limitations including WPA3-only networks and AWDL/AirDrop. These features are not verified on this machine.
-6. **Chrome hardware acceleration is unavailable in the tested combination.** Chrome 155 reports software rendering after EGL/ANGLE GPU initialization failures. Metal device enumeration succeeds; the system reporting Metal support does not establish acceleration compatibility for every application.
+2. **HiDPI scaling has not been achieved in the tested setup.** Native 2560 × 1600 remains active; a physical-size override was not consumed and was removed. This EFI does not include that override or a verified 160% scaling solution.
+3. **Startup stability is still under observation.** Intermittent boot failures occurred during bring-up. Reset NVRAM did not consistently solve them. Long-term warm/cold boot reliability remains unverified; a recovery USB is recommended.
+4. The Wi-Fi driver is an **alpha** build. Its upstream documentation lists limitations including WPA3-only networks and AWDL/AirDrop. These features are not verified on this machine.
+5. **An earlier tested Chrome/driver combination did not provide Chrome hardware acceleration.** Chrome 155 reports software rendering after EGL/ANGLE GPU initialization failures. Metal device enumeration succeeds; the system reporting Metal support does not establish acceleration compatibility for every application.
+
+### Touchpad and Bluetooth repair details
+
+- **Touchpad:** `VoodooI2C.kext/Contents/Info.plist` adds `VoodooI2CPCIArrowLakeHX_I2C3`, matching only `0x7f4f8086`. Timing: 133 MHz I2C clock, 42 ns SDA hold, 171 ns SDA fall and 208 ns SCL fall, following the matching controller in the [Linux LPSS source](https://github.com/torvalds/linux/blob/master/drivers/mfd/intel-lpss-pci.c). Existing `-vi2c-force-polling`, XOSI and ACPI are retained. GPIO interrupt support is not claimed.
+- **Bluetooth:** the existing firmware, patcher and fixup bundles are enabled. `bluetoothInternalControllerInfo` is **14 zero bytes**; `bluetoothExternalDongleFailed` is **one zero byte**, with the corresponding NVRAM Delete entries, as documented by [BlueToolFixup](https://github.com/acidanthera/BrcmPatchRAM#bluetoolfixupkext). No IntelBluetoothInjector is included.
+- **After reboot:** AirportItlwm 2.4.0 still loads, native Wi-Fi is on, the default route uses `en1`, HTTPS connectivity succeeds, and the touchpad remains bound. The Bluetooth repair did not change Wi-Fi, USB mapping, touchpad, audio, ACPI or graphics-driver files.
+- **Existing fan bridge:** `TXGamingFanBridge.kext` and `SSDT-TXGFAN.aml` were already present in the working source EFI and are retained. Fan telemetry/profile control remain experimental, not fully verified features. The separate fan-control app is not included.
 
 ### Graphical boot menu
 
@@ -102,7 +108,7 @@ EFI/
     config.plist
     ACPI/       # enabled machine-specific tables
     Drivers/    # HfsPlus, OpenRuntime, OpenCanopy, ResetNvramEntry
-    Kexts/      # enabled bundles, with their original plug-ins/resources
+    Kexts/      # enabled bundles, with their plug-ins/resources and the documented local I2C match
     Tools/      # the configured NVIDIA recovery tool (hidden until Space)
     Resources/  # active icons, labels and bitmap fonts; no wallpaper
 Extras/Windows-visibility/  # optional OC-specific visibility markers
@@ -113,7 +119,7 @@ SHA256SUMS.txt
 .gitignore
 ```
 
-Excluded files and data include real serials and MAC/ROM values, Wi-Fi hotspot settings, stale Bluetooth controller data, old configs/kext backups, boot logs, screenshots, local scripts and disk images. OpenCanopy icons, labels and bitmap fonts are included for the active GoldenGate theme. Wallpaper, audio-assist resources and unused text fonts are omitted. The Windows disk path is replaced with a disabled template; saved NVRAM boot choices are not distributed. No NVIDIA files from `/Library/Extensions`, `/Library/GPUBundles` or firmware directories are redistributed in this EFI package.
+Excluded files and data include real serials and MAC/ROM values, Wi-Fi hotspot settings, private Bluetooth addresses/controller data, old configs/kext backups, boot logs, screenshots, local scripts and disk images. OpenCanopy icons, labels and bitmap fonts are included for the active GoldenGate theme. Wallpaper, audio-assist resources and unused text fonts are omitted. The Windows disk path is replaced with a disabled template; saved NVRAM boot choices are not distributed. No NVIDIA files from `/Library/Extensions`, `/Library/GPUBundles` or firmware directories are redistributed in this EFI package.
 
 Enabled file references, ACPI checksums and required OpenCanopy resources have been checked. The exported config passes **ocvalidate 1.0.9 from the exact same OpenCore build**. Core OpenCore binaries and enabled hardware kexts are preserved; identity and disk-path redaction is applied only to the public copy. Validation does not replace an actual boot test.
 
@@ -133,6 +139,7 @@ Enabled file references, ACPI checksums and required OpenCanopy resources have b
 - [laobamac/itlwm — Sequoia AirportItlwm](https://github.com/laobamac/itlwm#airportitlwm-on-macos-sequoia)
 - [USBToolBox](https://github.com/USBToolBox/kext), [VoodooI2C](https://github.com/VoodooI2C/VoodooI2C), [VoodooPS2](https://github.com/acidanthera/VoodooPS2)
 - [Realtek RTL8111](https://github.com/Mieze/RTL8111_driver_for_OS_X)
+- [IntelBluetoothFirmware / IntelBTPatcher](https://github.com/OpenIntelWireless/IntelBluetoothFirmware), [BlueToolFixup](https://github.com/acidanthera/BrcmPatchRAM)
 - [nullmoth NVIDIA macOS driver](https://github.com/nullmoth/nvidia-macos-driver) — installed separately
 
 Third-party authorship and upstream licenses are retained. See `LICENSES/` and `THIRD_PARTY_NOTICES.md`. No blanket license is applied to the combined package.
@@ -145,7 +152,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 
 适用于 **华硕 TX Gaming FX608LM** 的脱敏 OpenCore EFI。macOS Sequoia 安装在独立的 SanDisk SSD 上，原 Samsung SSD 上的 Windows 单独保留。
 
-配置检查日期为 **2026 年 10 月 11 日**。分享前已移除私人身份信息和冗余文件。脱敏后的副本尚未重新进行启动测试，也未验证对其他华硕机型的兼容性。
+配置检查日期为 **2026 年 10 月 14 日**，触控板与蓝牙修复均已完成重启验证。分享前已移除私人身份信息和冗余文件。脱敏后的副本尚未重新进行启动测试，也未验证对其他华硕机型的兼容性。
 
 ### 硬件与测试环境
 
@@ -157,7 +164,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 | 内存 | **32GB** |
 | 独显 | NVIDIA GeForce **RTX 5060 Laptop GPU**，`10DE:2D59`，**8GB 显存** |
 | 核显 | Intel `8086:7D67`；本配置中禁用 |
-| 内屏 | **2560 × 1600**，当前系统报告 **60Hz** |
+| 内屏 | **16 英寸、2560 × 1600**，当前系统报告 **165Hz** |
 | 无线 / 蓝牙 | Intel **AX210**，无线 `8086:2725`，蓝牙 USB `8087:0032` |
 | 有线网卡 | Realtek **RTL8111 系列**，`10EC:8168` |
 | 声卡 | Realtek **ALC256**，`10EC:0256`，华硕子系统 `1043:1064`；Intel SST 控制器 `8086:7F50` |
@@ -183,18 +190,24 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 | 键盘 / 外接鼠标 | 内置 PS/2 键盘和外接 USB HID 设备已识别；特殊功能键尚未全部验证。 |
 | 电池 | **状态读取可用。** 系统能报告电量、内置电池和交流电供电状态；续航和睡眠表现未验证。 |
 | 有线网卡 | **驱动已加载，网线实测待完成。** 已有 RTL8111 接口，未确认有线联网。 |
-| 蓝牙 | **当前不可用。** Intel 蓝牙 USB 硬件已识别，但固件、补丁和修复 kext 均禁用。 |
-| 触控板 | **未驱动、不可用。** 现有输入驱动未能使触控板正常工作。 |
+| 蓝牙 | **重启后可用。** 使用 IntelBluetoothFirmware 2.5.0、IntelBTPatcher 2.5.0 和 BlueToolFixup 2.7.3，已在本机确认生效；不代表完整连续互通功能可用。 |
+| 触控板 | **重启后可用。** ASCE1200 I2C-HID 已绑定 VoodooI2CHID 和精密触控板事件驱动，使用 I2C3 控制器 `8086:7F4F` 精确匹配和轮询模式；全部手势及睡眠唤醒尚未完整测试。 |
 | 睡眠唤醒、传感器、HDMI 音频、Apple 服务 | **未完整验证。** 这些功能尚未完成实际测试。 |
 
 ### 已知问题
 
 1. **开机时偶发闪屏。** 启动过程中偶发屏幕闪烁或闪屏，问题**尚未修复**，具体发生时机和根因尚未完全定位。成功进入桌面后显示可用，但启动时的显示切换并不总是正常。
-2. **触控板无法驱动。** 触控板目前不可用，ACPI、控制器和设备绑定仍需排查。
-3. **蓝牙不可用。** 相关 Intel 蓝牙 kext 已禁用，精简包未包含这些文件。
-4. **开机稳定性仍在观察。** 调试阶段出现过偶发启动失败，Reset NVRAM 未能稳定解决问题。长期冷启动 / 热重启稳定性尚未验证，建议保留回退 U 盘。
-5. Wi-Fi 驱动为 **alpha** 构建。上游注明纯 WPA3、AWDL / AirDrop 等存在功能限制，这些功能尚未在本机验证。
-6. **已测试的 Chrome 与驱动组合无法使用硬件加速。** Chrome 155 因 EGL / ANGLE GPU 初始化失败而使用软件渲染。Metal 设备枚举成功，但系统报告支持 Metal，不代表所有应用都能正常使用硬件加速。
+2. **已测试配置尚未实现 HiDPI 缩放。** 内屏仍使用原生 2560 × 1600；物理尺寸覆盖未被系统采用，已移除。本 EFI 不包含该覆盖或已验证的 160% 缩放方案。
+3. **开机稳定性仍在观察。** 调试阶段出现过偶发启动失败，Reset NVRAM 未能稳定解决问题。长期冷启动 / 热重启稳定性尚未验证，建议保留回退 U 盘。
+4. Wi-Fi 驱动为 **alpha** 构建。上游注明纯 WPA3、AWDL / AirDrop 等存在功能限制，这些功能尚未在本机验证。
+5. **此前测试的 Chrome 与驱动组合无法使用 Chrome 硬件加速。** Chrome 155 因 EGL / ANGLE GPU 初始化失败而使用软件渲染。Metal 设备枚举成功，但系统报告支持 Metal，不代表所有应用都能正常使用硬件加速。
+
+### 触控板与蓝牙修复细节
+
+- **触控板：** 在 `VoodooI2C.kext/Contents/Info.plist` 中增加 `VoodooI2CPCIArrowLakeHX_I2C3`，仅匹配 `0x7f4f8086`。时序为 133MHz I2C 时钟、42ns SDA hold、171ns SDA fall、208ns SCL fall，依据 [Linux LPSS 源码](https://github.com/torvalds/linux/blob/master/drivers/mfd/intel-lpss-pci.c) 中该控制器的配置。保留 `-vi2c-force-polling`、XOSI 和现有 ACPI；不宣称 GPIO 中断模式已支持。
+- **蓝牙：** 启用已有固件、补丁和修复 bundle。按 [BlueToolFixup 官方说明](https://github.com/acidanthera/BrcmPatchRAM#bluetoolfixupkext) 保留 `bluetoothInternalControllerInfo` 为 **14 字节全零**，`bluetoothExternalDongleFailed` 为 **1 字节全零**及对应 NVRAM Delete 项；不包含 IntelBluetoothInjector。
+- **重启核对：** AirportItlwm 2.4.0 仍加载，原生 Wi-Fi 开启，默认路由为 `en1`，HTTPS 联网测试通过，触控板仍保持绑定。蓝牙修复未改动 Wi-Fi、USB 映射、触控板、声卡、ACPI 和显卡驱动文件。
+- **已有风扇桥接：** 可用源 EFI 中已有 `TXGamingFanBridge.kext` 和 `SSDT-TXGFAN.aml`，本次保留。风扇读数及固件模式控制属于实验功能，不列为已完整验证的设备；单独的风扇助手应用不包含在此仓库中。
 
 ### 图形启动菜单
 
@@ -227,7 +240,7 @@ Third-party authorship and upstream licenses are retained. See `LICENSES/` and `
 
 **序列号、MLB、UUID 和 ROM 已替换成新生成的演示值。用于 Apple 服务之前，必须在本机重新生成并替换这四项，不要共用公开身份。** SMBIOS 机型仍为 MacBookPro16,2。这些演示值用于保护私人身份信息，不代表 Apple 服务已激活或具有真实设备身份。
 
-包中保留启动器、启用的 ACPI 表、UEFI 驱动、kext bundle、配置文件、NVIDIA 回退工具及 OpenCanopy 所需图标、标签和位图字体，另附可选 Windows 显示标记模板、README、上游许可证声明、校验清单和 `.gitignore`。启用的 kext 保留原有插件 / 资源，以维护 bundle 完整性。
+包中保留启动器、启用的 ACPI 表、UEFI 驱动、kext bundle、配置文件、NVIDIA 回退工具及 OpenCanopy 所需图标、标签和位图字体，另附可选 Windows 显示标记模板、README、上游许可证声明、校验清单和 `.gitignore`。启用的 kext 保留原有插件 / 资源；VoodooI2C 的 Info.plist 包含下述本机控制器适配。
 
 已移除真实三码、MAC / ROM、热点配置、旧蓝牙控制器状态、历史配置与 kext 备份、启动日志、截图、本地脚本和磁盘镜像。当前使用 **OpenCanopy 图形菜单**，包含 GoldenGate 主题图标、标签和位图字体，不附带壁纸、音频辅助资源和未使用的文本字体。Windows 磁盘设备路径已改为禁用模板，NVRAM 中保存的默认启动选择不随包分发。EFI 包不重新分发系统目录中的 NVIDIA 驱动、GPU bundle 和固件。
 

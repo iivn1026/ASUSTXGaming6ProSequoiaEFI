@@ -2,7 +2,7 @@
 
 ## English
 
-This package is a collection of machine configuration files and third-party boot components. It does not relicense those components. Included bundles retain their original executable contents, bundle metadata and signatures; AppleDouble/Finder metadata is excluded. Sources and the versions observed in the working EFI are listed below.
+This package is a collection of machine configuration files and third-party boot components. It does not relicense those components. Included bundles retain their executable contents and plug-ins; VoodooI2C Info.plist has a documented local controller-match addition. AppleDouble/Finder metadata is excluded. Sources and the versions observed in the working EFI are listed below.
 
 | Component | Recorded version / origin | Upstream / notice |
 |---|---|---|
@@ -17,9 +17,12 @@ This package is a collection of machine configuration files and third-party boot
 | BrightnessKeys | 1.0.4 | [BrightnessKeys](https://github.com/acidanthera/BrightnessKeys), `LICENSES/BrightnessKeys.txt` |
 | RestrictEvents | 1.1.7 | [RestrictEvents](https://github.com/acidanthera/RestrictEvents), `LICENSES/RestrictEvents.txt` |
 | AirportItlwm | 2.4.0 alpha, tested Sequoia binary matching 9bc4b4d | [laobamac/itlwm](https://github.com/laobamac/itlwm), `LICENSES/AirportItlwm.txt`; Intel firmware notice in `LICENSES/Intel-firmware.txt` |
+| IntelBluetoothFirmware / IntelBTPatcher | 2.5.0 | [OpenIntelWireless](https://github.com/OpenIntelWireless/IntelBluetoothFirmware), `LICENSES/IntelBluetoothFirmware.txt`; Intel firmware notice retained |
+| BlueToolFixup | 2.7.3 | [BrcmPatchRAM](https://github.com/acidanthera/BrcmPatchRAM), `LICENSES/BrcmPatchRAM.txt` |
+| TXGamingFanBridge / SSDT-TXGFAN | Local experimental ASUS WMI adapter already present in source EFI | Local bridge and ACPI configuration; fan telemetry/profile control not fully verified; no blanket license asserted |
 | USBToolBox | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext); source copyright: Dhinak G, 2020–2021. A separate root license file was not found during preparation. |
 | UTBMap | 1.1, machine-specific map | Codeless USBToolBox configuration from this machine |
-| VoodooI2C | 2.9.1 | [VoodooI2C](https://github.com/VoodooI2C/VoodooI2C), `LICENSES/VoodooI2C.txt` |
+| VoodooI2C | 2.9.1; local exact `8086:7F4F` match and timing addition | [VoodooI2C](https://github.com/VoodooI2C/VoodooI2C), `LICENSES/VoodooI2C.txt` |
 | VoodooI2CHID | Bundle version 1 | Copyright © 2017 Alexandre Daoud, retained in bundle metadata; associated VoodooI2C project. Exact local build provenance remains to be documented. |
 | VoodooPS2Controller | 2.3.8 | [VoodooPS2](https://github.com/acidanthera/VoodooPS2), `LICENSES/VoodooPS2.txt` |
 | RealtekRTL8111 | 2.4.2 | [Mieze/RTL8111_driver_for_OS_X](https://github.com/Mieze/RTL8111_driver_for_OS_X), copyright Laura Müller, GPL v2 or later; `LICENSES/RealtekRTL8111.txt` |
@@ -30,7 +33,7 @@ The full NVIDIA system driver, GPU bundles and firmware are not included. This f
 
 ## 简体中文
 
-本包由本机配置和第三方启动组件组成，不对第三方组件重新授权。保留原始执行文件、bundle 元数据与签名，仅去除 AppleDouble / Finder 元数据。上表列出了实际配置中的版本、上游来源和已取得的许可证文件。
+本包由本机配置和第三方启动组件组成，不对第三方组件重新授权。保留执行文件与插件；VoodooI2C 的 Info.plist 包含已说明的本机控制器匹配及时序修改，去除 AppleDouble / Finder 元数据。上表列出了实际配置中的版本、上游来源和已取得的许可证文件。
 
 USBToolBox 上游根目录未找到单独许可证，保留其作者版权说明；本地 VoodooI2CHID 构建的确切来源和 codeless AppleMCEReporterDisabler 的授权来源仍在清单中注明。没有把它们统一标成 MIT、BSD 或 GPL。NullMothSafe 遵循 nullmoth / 1401 上游条款。
 
