@@ -1,261 +1,213 @@
-# ASUSTXGaming6ProSequoiaEFI
-
-ASUS TX Gaming FX608LM — macOS Sequoia EFI with OpenCanopy GUI
+# ASUS TX Gaming 6 Pro — macOS 26 EFI
 
 [English](#english) · [简体中文](#简体中文)
 
+> **WARNING / 警告：Read this README completely before installation. 安装前必须认真阅读完整 README。Back up a working EFI and keep a recovery USB. 必须保留可启动的 EFI 备份和恢复 U 盘。**
+
 ## English
 
-### Overview
+### Scope
 
-Sanitized OpenCore EFI for **ASUS TX Gaming FX608LM**. macOS Sequoia is installed on a separate SanDisk SSD; Windows remains on the original Samsung SSD.
+The `macOS26` branch contains a sanitized export of the working internal OpenCore EFI for **ASUS TX Gaming 6 Pro / FX608LM**, checked on **16 October 2026**, running **macOS Tahoe 26.7.1 (25G241)**. The `main` branch retains the Sequoia configuration.
 
-Configuration checked on **14 October 2026**. Private identity information and unused files have been removed from the working EFI. The sanitized copy has not been boot-tested, and compatibility with other ASUS models has not been verified.
+This is an EFI package. NVIDIA system drivers, HiDPI framebuffer modifications, restored AppleHDA, KDKs, kernel collections and per-machine recovery backups are **not included**. Copying this EFI alone does not reproduce an already patched macOS installation. The working source boots; the public copy has different identity information and a disabled Windows template and has not been boot-tested separately.
 
-### Hardware and tested environment
+### Hardware
 
 | Component | Specification |
 |---|---|
-| Laptop | ASUS TX Gaming **FX608LM** |
-| BIOS | **FX608LM.315**, recorded installation baseline |
-| CPU | Intel Core Ultra 7 **255HX**, Arrow Lake-HX; **20 cores / 20 threads online** in the current macOS installation |
-| Memory | **32 GB** |
-| Dedicated GPU | NVIDIA GeForce **RTX 5060 Laptop GPU**, `10DE:2D59`, **8 GB VRAM** |
+| Laptop | ASUS TX Gaming 6 Pro, FX608LM |
+| BIOS baseline | FX608LM.315 |
+| CPU | Intel Core Ultra 7 255HX, Arrow Lake-HX; 20 cores / 20 threads online |
+| Memory | 32 GB |
+| Dedicated GPU | NVIDIA GeForce RTX 5060 Laptop GPU, `10DE:2D59`, 8 GB |
 | Integrated GPU | Intel `8086:7D67`; disabled in this configuration |
-| Internal display | **16-inch, 2560 × 1600**, currently reported at **165 Hz** |
-| Wi-Fi / Bluetooth | Intel **AX210**, Wi-Fi `8086:2725`, Bluetooth USB `8087:0032` |
-| Ethernet | Realtek **RTL8111 family**, `10EC:8168` |
-| Audio | Realtek **ALC256**, `10EC:0256`, ASUS subsystem `1043:1064`; Intel SST controller `8086:7F50` |
-| macOS SSD | **SanDisk Ultra 3D NVMe, 500 GB**, with a dedicated **512 MiB FAT32 EFI partition** |
-| Windows SSD | **Samsung MZVL81T0HELB-00BTW, 1 TB**, retained independently |
-| macOS | **Sequoia 15.8.1**, build **24H32**, Darwin **24.6.0** |
-| SMBIOS model | **MacBookPro16,2** |
-| OpenCore | Recorded build **DBG-109-2026-09-30**; a development/debug build |
+| Display | 16-inch internal panel, 2560 × 1600, 165 Hz |
+| Wireless | Intel AX210; Wi-Fi `8086:2725`, Bluetooth USB `8087:0032` |
+| Ethernet | Realtek RTL8111 family, `10EC:8168` |
+| Audio | Realtek ALC256, `10EC:0256`, subsystem `1043:1064`; Intel SST `8086:7F50` |
+| macOS SSD | SanDisk Ultra 3D NVMe, 500 GB, separate 512 MiB EFI partition |
+| Windows SSD | Samsung MZVL81T0HELB-00BTW, 1 TB |
+| SMBIOS | MacBookPro16,2; public identity values are randomized |
+| Bootloader | OpenCore / OpenCanopy DBG-109-2026-09-30, schema 1.0.9 |
+| Tested system | macOS Tahoe 26.7.1, build 25G241 |
 
 ### Device status
 
-| Device / feature | Status and evidence |
+| Feature | Status |
 |---|---|
-| Internal SSD boot | **Working.** The running OpenCore boot path points to the SanDisk SSD's EFI partition; the installation boots without the installer USB. |
-| CPU enumeration | **Working.** macOS reports 20 active physical/logical CPUs. Full power-management and stress testing remain pending. |
-| NVIDIA graphics | **Display output works.** The system reports RTX 5060 Laptop, 8 GB VRAM and **Metal 3**, and Metal device enumeration succeeds. Application compatibility varies; an earlier Chrome 155 test used software rendering, and acceleration has not been rechecked after subsequent NVIDIA driver updates. NVIDIA system drivers must be installed separately. |
-| Native Wi-Fi | **Working.** AirportItlwm 2.4.0 from the laobamac fork provides the native Wi-Fi interface; the active default route uses that interface. |
-| Internal speakers | **Working.** Speaker playback is confirmed with AppleALC and `alcid=97`. |
-| Headphone output | **Working.** Headphone playback is confirmed; the headset microphone is untested. |
-| Internal microphone | **Working.** Internal microphone recording is confirmed. |
-| Line input | **Detected; recording not tested.** The device appears in macOS audio information. |
-| USB | **Mapped and partially tested.** USB 2.0/3.0 port objects are present; external USB keyboard/mouse and the internal camera enumerate. Every physical port, USB-C orientation and transfer speed still need individual tests. |
-| Keyboard / external mouse | Internal PS/2 keyboard and external USB HID devices are detected; special keys are not fully tested. |
-| Battery | **Status reporting works.** macOS reports the internal battery, charge level and AC power state. Battery endurance and sleep behavior are untested. |
-| Ethernet | **Driver loaded; cable test pending.** RTL8111 is present as an interface, but wired connectivity has not been verified. |
-| Bluetooth | **Working.** IntelBluetoothFirmware 2.5.0, IntelBTPatcher 2.5.0 and BlueToolFixup 2.7.3 are enabled; operation confirmed on this machine. Full Continuity compatibility is not claimed. |
-| Touchpad | **Working.** ASCE1200 I2C-HID binds to VoodooI2CHID and its precision touchpad event driver, using an exact `8086:7F4F` I2C3 controller match and polling mode. Full gesture and sleep/wake testing remain incomplete. |
-| Sleep / wake, sensors, HDMI audio, Apple services | **Not fully verified.** Functional testing for these features is incomplete. |
+| Internal SSD boot | Working without the installer USB |
+| CPU | 20 active cores / threads; complete power-management testing remains pending |
+| NVIDIA display | Working with separately installed 1401 / NullMoth system drivers; RTX 5060 Laptop and 8 GB reported |
+| HiDPI | Working in the patched system; the current display reports 2560 × 1600 physical pixels and a 1280 × 800 logical desktop. Requires a separately patched NVRMFB; EFI arguments alone do not implement it |
+| Native Wi-Fi | Working with the Tahoe AirportItlwm 2.4.0 alpha build |
+| Bluetooth | Working; IntelBluetoothFirmware, IntelBTPatcher and BlueToolFixup retained |
+| Touchpad | Working with the existing ASCE1200 I2C-HID controller adaptation and polling mode |
+| Audio | AppleHDA restored separately with AppleALC 1.9.9 and `alcid=97`; built-in speaker outputs and the internal microphone are enumerated. Speaker, headphone and internal microphone operation was confirmed in the earlier working configuration; headset microphone and line-in recording are not verified |
+| USB | Machine-specific UTBMap retained; not every port, orientation and transfer speed has been tested |
+| Keyboard / external mouse | Working; all special keys are not verified |
+| Battery | Charge / AC status reporting available; endurance is not verified |
+| Ethernet | RTL8111 driver included; wired connection testing pending |
+| Sleep / wake, HDMI audio, sensors, Apple services | Not fully verified |
+| AirDrop / Continuity | Not claimed; native Wi-Fi and Bluetooth availability does not establish AWDL / AirDrop support |
 
-### Known issues
+### Tahoe changes
 
-1. **Intermittent screen flicker / flashing during startup.** The screen sometimes flickers or flashes while booting. This bug is **unresolved**; its exact timing and cause have not been isolated. The display works after a successful boot, but the startup display transition is not always smooth.
-2. **HiDPI scaling has not been achieved in the tested setup.** Native 2560 × 1600 remains active; a physical-size override was not consumed and was removed. This EFI does not include that override or a verified 160% scaling solution.
-3. **Startup stability is still under observation.** Intermittent boot failures occurred during bring-up. Reset NVRAM did not consistently solve them. Long-term warm/cold boot reliability remains unverified; a recovery USB is recommended.
-4. The Wi-Fi driver is an **alpha** build. Its upstream documentation lists limitations including WPA3-only networks and AWDL/AirDrop. These features are not verified on this machine.
-5. **An earlier tested Chrome/driver combination did not provide Chrome hardware acceleration.** Chrome 155 reports software rendering after EGL/ANGLE GPU initialization failures. Metal device enumeration succeeds; the system reporting Metal support does not establish acceleration compatibility for every application.
-
-### Touchpad and Bluetooth repair details
-
-- **Touchpad:** `VoodooI2C.kext/Contents/Info.plist` adds `VoodooI2CPCIArrowLakeHX_I2C3`, matching only `0x7f4f8086`. Timing: 133 MHz I2C clock, 42 ns SDA hold, 171 ns SDA fall and 208 ns SCL fall, following the matching controller in the [Linux LPSS source](https://github.com/torvalds/linux/blob/master/drivers/mfd/intel-lpss-pci.c). Existing `-vi2c-force-polling`, XOSI and ACPI are retained. GPIO interrupt support is not claimed.
-- **Bluetooth:** the existing firmware, patcher and fixup bundles are enabled. `bluetoothInternalControllerInfo` is **14 zero bytes**; `bluetoothExternalDongleFailed` is **one zero byte**, with the corresponding NVRAM Delete entries, as documented by [BlueToolFixup](https://github.com/acidanthera/BrcmPatchRAM#bluetoolfixupkext). No IntelBluetoothInjector is included.
-- **Current status:** AirportItlwm 2.4.0 still loads, native Wi-Fi is on, the default route uses `en1`, HTTPS connectivity succeeds, and the touchpad remains bound. The Bluetooth repair did not change Wi-Fi, USB mapping, touchpad, audio, ACPI or graphics-driver files.
-- **Existing fan bridge:** `TXGamingFanBridge.kext` and `SSDT-TXGFAN.aml` were already present in the working source EFI and are retained. Fan telemetry/profile control remain experimental, not fully verified features. The separate fan-control app is not included.
+- Two AirportItlwm bundles are retained with mutually exclusive kernel ranges: `AirportItlwm.kext` for Darwin **24.2.0–24.99.99**, and `AirportItlwm-Tahoe.kext` for **25.0.0–25.99.99**. Both have the same bundle identifier; only the matching one may load. Do not remove the ranges or enable itlwm alongside them.
+- The Tahoe binary is the prepared **2.4.0 alpha `bbe368e`** build from the laobamac fork. The Sequoia binary is retained for the existing OS-specific configuration. Neither entry covers future Darwin major versions automatically.
+- Existing CPU spoofing, ACPI, Darwin 25 kernel patches, USB mapping, touchpad adaptation, Bluetooth initialization, security settings and graphics boot arguments are retained.
+- `alcid=97` is retained. Tahoe audio requires **AppleHDA restoration in the OS**, in addition to AppleALC in EFI. The working installation was repaired using the **exact 25G241 KDK**, with original snapshots and collections retained before rebuilding. No AppleHDA or system-patching installer is distributed here.
+- `nvfbhidpi=1`, `nvfbhidpiscaled=1` and the existing NVIDIA arguments are retained for the separately installed experimental framebuffer. They do not replace NVIDIA driver installation.
+- `TXGamingFanBridge.kext` remains limited to Darwin 24 by the working config; its inclusion does not imply Tahoe fan-control support.
+- Boot arguments are copied from the current configuration without adding or removing `-v`; this export currently has no standalone `-v` argument.
 
 ### Graphical boot menu
 
-- **OpenCanopy**, using the same **DBG-109-2026-09-30** build as OpenCore, with **Acidanthera\GoldenGate** icons.
-- **Plain black background; no wallpaper.** The optional background image is omitted; `DefaultBackgroundColor=00000000` is retained.
-- The local configuration arranges **macOS first and Windows second**, with macOS selected by default and a **5-second** timeout. The exported demonstration configuration does not contain the machine's saved NVRAM boot selection.
-- **Space** reveals Recovery, Reset NVRAM and the NVIDIA recovery tool. `HideAuxiliary=true`; the recovery tool is marked auxiliary. Arrow keys and Enter select a system.
-- The Windows entry in the public config is a **disabled template** with a zero partition UUID. Its real SSD device path has been removed. On a Windows EFI without the visibility markers below, native Windows scanning remains available and its position follows firmware order. For automatic scanning, remove markers left by an earlier custom-entry setup; otherwise Windows can remain hidden while the template is disabled.
+OpenCanopy uses **Acidanthera\\GoldenGate** icons with a **plain black background and no wallpaper**. The local setup displays **macOS first, Windows second**, defaults to macOS and waits **5 seconds**. Press **Space** to reveal recovery and auxiliary tools.
 
-To reproduce the local two-system ordering:
+`InstanceIdentifier=TXGaming` is required for the supplied visibility markers. An empty identifier makes instance-specific markers ineffective and can expose the OpenCore volume and a duplicate Windows entry.
 
-1. Obtain the target Windows loader's complete UEFI device path from an OpenCore debug log. Replace the placeholder `Misc → Entries → Windows → Path` with that path and enable the entry.
-2. Only after the custom path is configured, copy the two `.contentVisibility` files under `Extras/Windows-visibility/EFI/` to their corresponding locations on the **Windows EFI partition**. They suppress the duplicate automatic Windows entry and make a fallback EFI entry auxiliary **only for the `TXGaming` OpenCore instance**. The original Windows bootloader is not included or replaced.
-3. Keep `InstanceIdentifier=TXGaming` and `HideAuxiliary=true`. Native macOS stays before the custom Windows entry when auxiliary entries are hidden.
-4. In the OC menu, select macOS and press **Ctrl + Enter** once to save it as the default. Put the internal SSD's OpenCore entry first in the firmware boot priority to enter OC at power-on.
+The public Windows entry is a **disabled template with a zero partition UUID**. Its private SSD path and saved NVRAM default selection are not distributed. To configure another installation:
 
-The GUI and exported config pass static validation. The sanitized public copy has not been boot-tested.
+1. Back up both EFI partitions. Obtain the actual Windows `bootmgfw.efi` UEFI device path from an OpenCore debug log, replace the template path and enable that entry.
+2. Only after the custom Windows entry is correct, copy `Extras/Windows-visibility/EFI/` markers to the matching paths on the **Windows EFI partition**. These hide the duplicate automatic Windows entry only for the `TXGaming` instance; they do not replace the Windows loader.
+3. Keep `InstanceIdentifier=TXGaming` and `HideAuxiliary=true`. Select macOS and press **Ctrl + Enter** once to save it as the default. Place the internal OpenCore entry first in BIOS boot priority.
+4. For automatic Windows discovery instead, leave the template disabled and remove the instance-specific marker next to `EFI/Microsoft/Boot/bootmgfw.efi` if present. Automatic ordering follows firmware enumeration.
 
-### Configuration notes
+### Installation
 
-- **Verbose boot logging (`-v`) is retained in the shared configuration.**
-- The **20-core configuration** uses machine-specific `DSDT-FX608LM-20C.aml` and `APIC-FX608LM-20C.aml`. The early diagnostic patch that forced the CPU count to eight is disabled and omitted; `ProvideCurrentCpuInfo=true` is retained.
-- Speaker playback, headphone output and internal microphone recording are confirmed with **`alcid=97`**. Layout 97 is retained from the original configuration; the headset microphone and line input remain untested. Do not remove this parameter merely because the system-visible `layout-id` differs.
-- **AirportItlwm** provides native Wi-Fi. The Ethernet-style `itlwm` + HeliPort setup is no longer used. The included binary matches the tested Sequoia Release build at commit **`9bc4b4d`**. The mutable alpha release tag may later point to different assets. Do not enable `itlwm` and AirportItlwm together.
-- This EFI was exported **after NVIDIA driver installation**, with `ResizeAppleGpuBars=-1` and `ResizeGpuBars=13` retained. EFI files alone do not install the NVIDIA driver, its auxiliary kernel collection, GPU bundles or firmware.
-- The iGPU is disabled and the dedicated GPU is used. macOS driver support for the Intel integrated GPU has not been demonstrated.
-- Third-party kext security settings and diagnostic boot arguments are inherited from the working installation. Review them before use. A Reset NVRAM menu entry is included and can alter firmware boot entries.
+1. Confirm the exact hardware, BIOS and CPU topology. This configuration contains machine-specific DSDT, APIC and USB mapping; it is not a universal laptop EFI.
+2. Back up the **complete current EFI** and important files. Prepare and test a bootable recovery USB before replacing the internal EFI. A bootloader backup does not back up macOS system patches or user data.
+3. Download the **macOS26 branch**, then verify `SHA256SUMS.txt` from the extracted root with `shasum -a 256 -c SHA256SUMS.txt`.
+4. Generate a private SMBIOS identity and replace `SystemSerialNumber`, `MLB`, `SystemUUID` and `ROM` under `PlatformInfo → Generic`. Do not reuse the public demonstration values for Apple services.
+5. Review `config.plist` in an editor compatible with OpenCore **1.0.9**. Keep the OS-specific Wi-Fi ranges, existing `alcid=97` and required boot arguments. Validate with the matching **ocvalidate 1.0.9**, not an older OCC validator.
+6. Test the sanitized EFI from a spare USB first. Copy the supplied `EFI/BOOT` and `EFI/OC` to the intended EFI partition after preserving its old contents. **Do not format the disk or overwrite `EFI/Microsoft`.** Keep the original known-working USB separately.
+7. Install OS-specific NVIDIA components using the upstream procedure if they are not already installed. HiDPI requires the separate [1401NVDriverHiDpiFix](https://github.com/iivn1026/1401NVDriverHiDpiFix) procedure and its own backup / rollback instructions.
+8. For Tahoe audio, AppleALC in this package is insufficient on an OS without AppleHDA. Back up the system patch state, use resources matching the exact OS build, restore AppleHDA and rebuild compatible collections using the chosen patcher's documented procedure. Keep its Recovery rollback instructions offline. Do not copy kernel collections or private rollback packages from another machine.
+9. Once macOS and required devices work from USB, install the tested EFI on the internal EFI partition and configure Windows / default boot as above.
 
-### Privacy and package contents
+### Rollback, including an unbootable system
 
-**The serial number, MLB, UUID and ROM have been replaced with newly generated demonstration values. Replace all four locally before using Apple services. Do not reuse the public identity set.** The SMBIOS model remains MacBookPro16,2. These values protect private identity information; they do not prove Apple service activation or hardware authenticity.
+- **EFI-only failure:** enter the firmware boot menu and boot the previously tested recovery USB's OpenCore. Select the installed macOS, mount the internal EFI, and restore its complete saved `EFI/BOOT` and `EFI/OC`. Preserve `EFI/Microsoft`. Reboot and select the internal OpenCore.
+- **No internal macOS entry or black screen:** try the known-working USB first. Press Space for Recovery / auxiliary options. The NVIDIA recovery tool can remove NVIDIA components; it is not a general-purpose rollback and can remove graphics functionality.
+- **System driver / root-patch failure:** changing EFI alone does not restore `/System/Library/Extensions`, kernel collections, GPU bundles or a selected APFS snapshot. Enter macOS Recovery from OpenCore, unlock / mount the installed system and data volumes, and follow the **same machine's matching patcher rollback instructions**. Restore the paired original snapshot and collections. Never substitute Sequoia caches for Tahoe caches.
+- **Windows entry missing:** remove the instance-specific Windows visibility marker to restore automatic scanning, or correct the custom Windows device path. The original Windows bootloader must remain present.
+- Do not reset NVRAM as a routine repair. It can change boot defaults and firmware entries without undoing OS patches. Do not delete old snapshots until the replacement system is verified.
 
-The package contains only the following files:
+### Known issues
 
-```text
-EFI/
-  BOOT/BOOTx64.efi
-  OC/
-    OpenCore.efi
-    config.plist
-    ACPI/       # enabled machine-specific tables
-    Drivers/    # HfsPlus, OpenRuntime, OpenCanopy, ResetNvramEntry
-    Kexts/      # enabled bundles, with their plug-ins/resources and the documented local I2C match
-    Tools/      # the configured NVIDIA recovery tool (hidden until Space)
-    Resources/  # active icons, labels and bitmap fonts; no wallpaper
-Extras/Windows-visibility/  # optional OC-specific visibility markers
-LICENSES/       # available upstream license notices
-README.md
-THIRD_PARTY_NOTICES.md
-SHA256SUMS.txt
-.gitignore
-```
+1. **Intermittent startup screen flicker remains unresolved.** Display transitions can flash during boot.
+2. The Wi-Fi build is alpha. WPA3-only networks, AWDL / AirDrop and full Continuity are not established as working.
+3. An earlier Chrome / driver combination used software rendering. Current application acceleration needs separate testing; GPU detection and working HiDPI do not prove browser acceleration.
+4. OS or NVIDIA updates may replace the patched framebuffer or restored AppleHDA and require repair. Preserve exact-build backups and recheck Wi-Fi kernel ranges after updates.
+5. Long-term sleep / wake, all USB ports, stress tests and other laptop models remain unverified.
 
-Excluded files and data include real serials and MAC/ROM values, Wi-Fi hotspot settings, private Bluetooth addresses/controller data, old configs/kext backups, boot logs, screenshots, local scripts and disk images. OpenCanopy icons, labels and bitmap fonts are included for the active GoldenGate theme. Wallpaper, audio-assist resources and unused text fonts are omitted. The Windows disk path is replaced with a disabled template; saved NVRAM boot choices are not distributed. No NVIDIA files from `/Library/Extensions`, `/Library/GPUBundles` or firmware directories are redistributed in this EFI package.
+### Privacy and contents
 
-Enabled file references, ACPI checksums and required OpenCanopy resources have been checked. The exported config passes **ocvalidate 1.0.9 from the exact same OpenCore build**. Core OpenCore binaries and enabled hardware kexts are preserved; identity and disk-path redaction is applied only to the public copy. Validation does not replace an actual boot test.
+The public copy has freshly randomized serial / MLB, UUID and locally administered ROM values. Real device identities, disk-specific Windows paths, NVRAM boot selections, Wi-Fi credentials, logs, obsolete configs, backups, screenshots and local recovery files are excluded. Required zero-filled Bluetooth initialization values remain intact. The live EFI is not changed during export.
 
-### Before using this package
-
-1. Verify the exact laptop, BIOS, CPU topology and hardware. Keep a backup of a known-working EFI and a recovery USB.
-2. Replace the demonstration SMBIOS identity and ROM privately; inspect the machine-specific DSDT and USB mapping rather than assuming portability.
-3. Obtain the NVIDIA driver from its upstream project and follow the instructions for the chosen release. This package captures an already-installed driver state.
-4. Identify the **macOS SSD's EFI partition by its device/model**, then copy the EFI folder there. Do not use a fixed `diskXsY` number or overwrite the Windows EFI.
-5. Test boot, speakers/headphones, Wi-Fi, USB ports and display behavior before changing more settings. Further BIOS/core changes or OS upgrades require revalidation.
-
-### Upstream projects
-
-- [OpenCorePkg](https://github.com/acidanthera/OpenCorePkg), [OcBinaryData](https://github.com/acidanthera/OcBinaryData)
-- [Lilu](https://github.com/acidanthera/Lilu), [AppleALC](https://github.com/acidanthera/AppleALC), [WhateverGreen](https://github.com/acidanthera/WhateverGreen)
-- [VirtualSMC](https://github.com/acidanthera/VirtualSMC), [NVMeFix](https://github.com/acidanthera/NVMeFix), [RestrictEvents](https://github.com/acidanthera/RestrictEvents), [BrightnessKeys](https://github.com/acidanthera/BrightnessKeys)
-- [laobamac/itlwm — Sequoia AirportItlwm](https://github.com/laobamac/itlwm#airportitlwm-on-macos-sequoia)
-- [USBToolBox](https://github.com/USBToolBox/kext), [VoodooI2C](https://github.com/VoodooI2C/VoodooI2C), [VoodooPS2](https://github.com/acidanthera/VoodooPS2)
-- [Realtek RTL8111](https://github.com/Mieze/RTL8111_driver_for_OS_X)
-- [IntelBluetoothFirmware / IntelBTPatcher](https://github.com/OpenIntelWireless/IntelBluetoothFirmware), [BlueToolFixup](https://github.com/acidanthera/BrcmPatchRAM)
-- [nullmoth NVIDIA macOS driver](https://github.com/nullmoth/nvidia-macos-driver) — installed separately
-
-Third-party authorship and upstream licenses are retained. See `LICENSES/` and `THIRD_PARTY_NOTICES.md`. No blanket license is applied to the combined package.
-
----
+Included: enabled EFI components and required bundle resources, active GoldenGate graphics / fonts, machine-specific ACPI and USB map, optional Windows visibility markers, license notices and checksums. Third-party licenses remain in `LICENSES/` and `THIRD_PARTY_NOTICES.md`. A successful static check does not guarantee booting on a different machine.
 
 ## 简体中文
 
-### 项目说明
+### 适用范围
 
-适用于 **华硕 TX Gaming FX608LM** 的脱敏 OpenCore EFI。macOS Sequoia 安装在独立的 SanDisk SSD 上，原 Samsung SSD 上的 Windows 单独保留。
+`macOS26` 分支为 **ASUS TX Gaming 6 Pro / FX608LM** 当前可用内置 EFI 的脱敏副本，核对日期为 **2026 年 10 月 16 日**，运行系统为 **macOS Tahoe 26.7.1（25G241）**。`main` 分支保留原 Sequoia 配置。
 
-配置检查日期为 **2026 年 10 月 14 日**。分享前已移除私人身份信息和冗余文件。脱敏后的副本尚未重新进行启动测试，也未验证对其他华硕机型的兼容性。
+本仓库仅包含 EFI。**不包含** NVIDIA 系统驱动、HiDPI 帧缓冲修改、恢复后的 AppleHDA、KDK、内核集合及本机专用回退备份。仅复制 EFI 不等于完成系统驱动和根卷补丁安装。源配置可用；公开副本更换了身份信息，并禁用了 Windows 模板，未单独进行启动测试。
 
-### 硬件与测试环境
+### 硬件
 
-| 项目 | 信息 |
+| 部件 | 规格 |
 |---|---|
-| 机型 | 华硕 TX Gaming **FX608LM** |
-| BIOS | **FX608LM.315**，安装阶段记录的基线版本 |
-| CPU | Intel Core Ultra 7 **255HX**，Arrow Lake-HX；当前 macOS 已上线 **20 核 / 20 线程** |
-| 内存 | **32GB** |
-| 独显 | NVIDIA GeForce **RTX 5060 Laptop GPU**，`10DE:2D59`，**8GB 显存** |
-| 核显 | Intel `8086:7D67`；本配置中禁用 |
-| 内屏 | **16 英寸、2560 × 1600**，当前系统报告 **165Hz** |
-| 无线 / 蓝牙 | Intel **AX210**，无线 `8086:2725`，蓝牙 USB `8087:0032` |
-| 有线网卡 | Realtek **RTL8111 系列**，`10EC:8168` |
-| 声卡 | Realtek **ALC256**，`10EC:0256`，华硕子系统 `1043:1064`；Intel SST 控制器 `8086:7F50` |
-| macOS 硬盘 | **SanDisk Ultra 3D NVMe 500GB**，独立 **512MiB FAT32 EFI 分区** |
-| Windows 硬盘 | **Samsung MZVL81T0HELB-00BTW 1TB**，单独保留 |
-| 系统 | **macOS Sequoia 15.8.1**，Build **24H32**，Darwin **24.6.0** |
-| SMBIOS 机型 | **MacBookPro16,2** |
-| OpenCore | 实测构建标识 **DBG-109-2026-09-30**，开发 / 调试构建 |
+| 机型 | ASUS TX Gaming 6 Pro，FX608LM |
+| BIOS 基线 | FX608LM.315 |
+| CPU | Intel Core Ultra 7 255HX，Arrow Lake-HX，20 核 / 20 线程在线 |
+| 内存 | 32 GB |
+| 独显 | NVIDIA GeForce RTX 5060 Laptop GPU，`10DE:2D59`，8 GB |
+| 核显 | Intel `8086:7D67`，当前配置禁用 |
+| 内屏 | 16 英寸，2560 × 1600，165 Hz |
+| 无线 | Intel AX210；Wi-Fi `8086:2725`，蓝牙 USB `8087:0032` |
+| 有线网卡 | Realtek RTL8111 系列，`10EC:8168` |
+| 声卡 | Realtek ALC256，`10EC:0256`，子系统 `1043:1064`；Intel SST `8086:7F50` |
+| macOS 硬盘 | SanDisk Ultra 3D NVMe 500 GB，独立 512 MiB EFI 分区 |
+| Windows 硬盘 | Samsung MZVL81T0HELB-00BTW 1 TB |
+| SMBIOS | MacBookPro16,2，公开身份值已随机替换 |
+| 引导 | OpenCore / OpenCanopy DBG-109-2026-09-30，配置格式 1.0.9 |
+| 已测试系统 | macOS Tahoe 26.7.1，25G241 |
 
 ### 设备状态
 
-| 设备 / 功能 | 当前状态与依据 |
+| 功能 | 状态 |
 |---|---|
-| 内置 SSD 启动 | **可用。** 当前 OpenCore 启动路径指向 SanDisk 内置 EFI，已能脱离安装 U 盘启动。 |
-| CPU 枚举 | **可用。** 系统实测 20 个物理 / 逻辑核心在线；完整电源管理和压力测试尚未完成。 |
-| NVIDIA 显卡 | **显示输出可用。** 识别 RTX 5060 Laptop、8GB 显存和 **Metal 3**，Metal 设备枚举成功。应用加速兼容性因应用而异；此前 Chrome 155 测试使用软件渲染，后续 NVIDIA 驱动更新后的应用加速尚未重新核对。NVIDIA 系统驱动需要另外安装。 |
-| 原生 Wi-Fi | **可用。** laobamac 分支的 AirportItlwm 2.4.0 已建立系统 Wi-Fi 接口，当前默认网络出口使用该接口。 |
-| 内置扬声器 | **可用。** 扬声器播放已确认可用，使用 AppleALC 和 `alcid=97`。 |
-| 耳机输出 | **可用。** 耳机输出已确认可用；耳麦麦克风尚未测试。 |
-| 内置麦克风 | **可用。** 内置麦克风录音已确认可用。 |
-| 线路输入 | **已识别，录音待测试。** 系统音频信息中已有设备。 |
-| USB | **已映射，部分已测试。** 可见 USB 2.0 / 3.0 端口，外接键鼠和内置摄像头已枚举；仍需逐个实测接口、USB-C 正反插和传输速度。 |
-| 键盘 / 外接鼠标 | 内置 PS/2 键盘和外接 USB HID 设备已识别；特殊功能键尚未全部验证。 |
-| 电池 | **状态读取可用。** 系统能报告电量、内置电池和交流电供电状态；续航和睡眠表现未验证。 |
-| 有线网卡 | **驱动已加载，网线实测待完成。** 已有 RTL8111 接口，未确认有线联网。 |
-| 蓝牙 | **可用。** 使用 IntelBluetoothFirmware 2.5.0、IntelBTPatcher 2.5.0 和 BlueToolFixup 2.7.3，已在本机确认生效；不代表完整连续互通功能可用。 |
-| 触控板 | **可用。** ASCE1200 I2C-HID 已绑定 VoodooI2CHID 和精密触控板事件驱动，使用 I2C3 控制器 `8086:7F4F` 精确匹配和轮询模式；全部手势及睡眠唤醒尚未完整测试。 |
-| 睡眠唤醒、传感器、HDMI 音频、Apple 服务 | **未完整验证。** 这些功能尚未完成实际测试。 |
+| 内置盘启动 | 可用，无需安装 U 盘 |
+| CPU | 20 核 / 20 线程在线；完整电源管理测试尚未完成 |
+| NVIDIA 显示 | 配合单独安装的 1401 / NullMoth 系统驱动可用，识别 RTX 5060 Laptop 和 8 GB 显存 |
+| HiDPI | 已修改的系统中可用；当前物理像素为 2560 × 1600，逻辑桌面为 1280 × 800。需要单独修改 NVRMFB，EFI 参数不能独立实现 |
+| 原生 Wi-Fi | Tahoe 版 AirportItlwm 2.4.0 alpha 可用 |
+| 蓝牙 | 可用，保留 IntelBluetoothFirmware、IntelBTPatcher 和 BlueToolFixup |
+| 触控板 | 可用，保留 ASCE1200 I2C-HID 控制器适配和轮询模式 |
+| 声卡 | 系统已单独恢复 AppleHDA，配合 AppleALC 1.9.9 和 `alcid=97`；内置扬声器输出与内置麦克风已枚举。此前可用配置已确认扬声器、耳机和内置麦克风功能；耳麦麦克风及线路输入录音未验证 |
+| USB | 保留本机 UTBMap；未逐一完成所有接口、正反插及速度测试 |
+| 键盘 / 外接鼠标 | 可用；部分特殊键未验证 |
+| 电池 | 可读取电量和充电状态；续航未验证 |
+| 有线网络 | 包含 RTL8111 驱动，插线联网未验证 |
+| 睡眠唤醒、HDMI 音频、传感器、Apple 服务 | 未完整验证 |
+| AirDrop / 连续互通 | 不宣称可用；Wi-Fi 与蓝牙可用不代表 AWDL / AirDrop 可用 |
 
-### 已知问题
+### Tahoe 配置变化
 
-1. **开机时偶发闪屏。** 启动过程中偶发屏幕闪烁或闪屏，问题**尚未修复**，具体发生时机和根因尚未完全定位。成功进入桌面后显示可用，但启动时的显示切换并不总是正常。
-2. **已测试配置尚未实现 HiDPI 缩放。** 内屏仍使用原生 2560 × 1600；物理尺寸覆盖未被系统采用，已移除。本 EFI 不包含该覆盖或已验证的 160% 缩放方案。
-3. **开机稳定性仍在观察。** 调试阶段出现过偶发启动失败，Reset NVRAM 未能稳定解决问题。长期冷启动 / 热重启稳定性尚未验证，建议保留回退 U 盘。
-4. Wi-Fi 驱动为 **alpha** 构建。上游注明纯 WPA3、AWDL / AirDrop 等存在功能限制，这些功能尚未在本机验证。
-5. **此前测试的 Chrome 与驱动组合无法使用 Chrome 硬件加速。** Chrome 155 因 EGL / ANGLE GPU 初始化失败而使用软件渲染。Metal 设备枚举成功，但系统报告支持 Metal，不代表所有应用都能正常使用硬件加速。
-
-### 触控板与蓝牙修复细节
-
-- **触控板：** 在 `VoodooI2C.kext/Contents/Info.plist` 中增加 `VoodooI2CPCIArrowLakeHX_I2C3`，仅匹配 `0x7f4f8086`。时序为 133MHz I2C 时钟、42ns SDA hold、171ns SDA fall、208ns SCL fall，依据 [Linux LPSS 源码](https://github.com/torvalds/linux/blob/master/drivers/mfd/intel-lpss-pci.c) 中该控制器的配置。保留 `-vi2c-force-polling`、XOSI 和现有 ACPI；不宣称 GPIO 中断模式已支持。
-- **蓝牙：** 启用已有固件、补丁和修复 bundle。按 [BlueToolFixup 官方说明](https://github.com/acidanthera/BrcmPatchRAM#bluetoolfixupkext) 保留 `bluetoothInternalControllerInfo` 为 **14 字节全零**，`bluetoothExternalDongleFailed` 为 **1 字节全零**及对应 NVRAM Delete 项；不包含 IntelBluetoothInjector。
-- **当前状态：** AirportItlwm 2.4.0 仍加载，原生 Wi-Fi 开启，默认路由为 `en1`，HTTPS 联网测试通过，触控板仍保持绑定。蓝牙修复未改动 Wi-Fi、USB 映射、触控板、声卡、ACPI 和显卡驱动文件。
-- **已有风扇桥接：** 可用源 EFI 中已有 `TXGamingFanBridge.kext` 和 `SSDT-TXGFAN.aml`，本次保留。风扇读数及固件模式控制属于实验功能，不列为已完整验证的设备；单独的风扇助手应用不包含在此仓库中。
+- 保留两个 AirportItlwm，通过互斥内核范围选择：`AirportItlwm.kext` 适用于 Darwin **24.2.0–24.99.99**，`AirportItlwm-Tahoe.kext` 适用于 **25.0.0–25.99.99**。两者 bundle 标识相同，只能加载对应系统的一份。不要删除版本范围，也不要同时启用 itlwm。
+- Tahoe 使用已准备的 laobamac 分支 **2.4.0 alpha `bbe368e`** 构建。保留 Sequoia 驱动用于已有的系统版本配置，不自动覆盖未来 Darwin 大版本。
+- 保留现有 CPU 仿冒、ACPI、Darwin 25 内核补丁、USB 映射、触控板适配、蓝牙初始化、安全设置及显卡参数。
+- 保留 `alcid=97`。Tahoe 系统缺少 AppleHDA 时，需要**额外在系统中恢复 AppleHDA**。当前安装使用准确匹配 **25G241 的 KDK**，保存原快照和内核集合后完成重建。本仓库不分发 AppleHDA 或系统补丁安装器。
+- 保留 `nvfbhidpi=1`、`nvfbhidpiscaled=1` 及现有 NVIDIA 参数，配合另行安装的实验帧缓冲使用；这些参数不能替代显卡驱动安装。
+- `TXGamingFanBridge.kext` 仍按源配置限制在 Darwin 24；包含该文件不代表支持 Tahoe 风扇控制。
+- 启动参数按当前配置保留，不额外增删 `-v`；本次源配置没有独立的 `-v` 参数。
 
 ### 图形启动菜单
 
-- 使用 **OpenCanopy**，与 OpenCore 同属 **DBG-109-2026-09-30** 构建，主题为 **Acidanthera\GoldenGate**。
-- **纯黑背景，无壁纸。** 不包含可选背景图片，保留 `DefaultBackgroundColor=00000000`。
-- 本地配置为 **macOS 第一位、Windows 第二位**，默认 macOS，等待 **5 秒**后启动。公开演示配置不包含本机 NVRAM 中保存的默认启动选择。
-- 按**空格**显示恢复分区、Reset NVRAM 和 NVIDIA 回退工具。启用 `HideAuxiliary=true`，回退工具标为辅助项目。方向键选择，回车启动。
-- 公开配置中的 Windows 项为**默认禁用的模板**，分区 UUID 使用全零占位符，真实 SSD 路径已脱敏。Windows EFI 未放置下述显示标记时，可由 OC 自动扫描 Windows，但顺序取决于固件。若改回自动扫描，应移除旧自定义启动配置留下的显示标记，否则模板禁用时 Windows 可能仍被隐藏。
+OpenCanopy 使用 **Acidanthera\\GoldenGate** 图标，**纯黑背景，无壁纸**。本地菜单为 **macOS 第一、Windows 第二**，默认 macOS，等待 **5 秒**。按**空格**显示恢复与辅助工具。
 
-复现本地双系统排列的方法：
+显示规则依赖 `InstanceIdentifier=TXGaming`。该字段为空时，针对实例的隐藏标记失效，可能多出 OpenCore 分区及重复 Windows 入口。
 
-1. 从 OC 调试日志取得目标 Windows 启动器的完整 UEFI 设备路径，替换 `Misc → Entries → Windows → Path` 并启用该项目。
-2. 确认自定义路径配置完成后，将 `Extras/Windows-visibility/EFI/` 下的两个 `.contentVisibility` 文件复制到 **Windows EFI 分区**对应位置。它们仅对 `TXGaming` 这一 OC 实例隐藏重复的自动 Windows 项，并把备用 EFI 项设为辅助项目；不包含或替换 Windows 原启动器。
-3. 保留 `InstanceIdentifier=TXGaming` 和 `HideAuxiliary=true`。隐藏辅助项目时，原生 macOS 项排在自定义 Windows 项之前。
-4. 在 OC 菜单中选中 macOS，按一次 **Ctrl + Enter** 保存默认选择。在 BIOS 中将内置 SSD 的 OpenCore 项放在启动优先级第一位，即可开机先进入 OC。
+公开 Windows 项为**禁用模板，分区 UUID 全零**，不包含真实 SSD 路径或本机 NVRAM 默认选择。部署方法：
 
-图形菜单配置及导出副本已通过静态校验；脱敏公开副本尚未进行启动测试。
+1. 备份两块盘的 EFI。从 OC 调试日志获取目标 Windows `bootmgfw.efi` 的完整 UEFI 路径，替换模板并启用。
+2. 确认自定义 Windows 项正确后，再把 `Extras/Windows-visibility/EFI/` 中的标记复制到 **Windows EFI 分区**对应目录。它们仅对 `TXGaming` 实例隐藏重复自动入口，不替换 Windows 启动器。
+3. 保留 `InstanceIdentifier=TXGaming`、`HideAuxiliary=true`。在 OC 中选中 macOS，按一次 **Ctrl + Enter** 保存默认；在 BIOS 中把内置 OpenCore 放在启动首位。
+4. 若使用自动扫描 Windows，则保持模板禁用，并移除 `EFI/Microsoft/Boot/bootmgfw.efi` 旁已有的实例隐藏标记。自动排列顺序由固件枚举决定。
 
-### 配置要点
+### 安装方法
 
-- **公开配置保留 `-v` 啰嗦启动日志参数。**
-- **20 核配置**包含本机专用的 `DSDT-FX608LM-20C.aml` 和 `APIC-FX608LM-20C.aml`。早期强制返回 8 核的诊断补丁已禁用并移除，保留 `ProvideCurrentCpuInfo=true`。
-- 使用 **`alcid=97`**，扬声器播放、耳机输出及内置麦克风录音均已确认可用。布局 97 沿用旧配置，耳麦麦克风和线路输入尚未测试。系统可见的 `layout-id` 与它不同，不是直接删除该参数的依据。
-- **AirportItlwm** 提供原生无线接口，不再使用以太网形式的 `itlwm + HeliPort`。随包二进制与已测试的 Sequoia Release 构建 **`9bc4b4d`** 一致；alpha 发布标签以后可能更新到其他构建。不要同时启用 itlwm 和 AirportItlwm。
-- 这套 EFI 导出于 **NVIDIA 驱动安装完成后**，保留 `ResizeAppleGpuBars=-1`、`ResizeGpuBars=13`。只复制 EFI 并不会安装 NVIDIA 系统驱动、辅助内核集合、GPU bundle 或固件。
-- 核显已禁用，目前使用独显；Intel 核显的 macOS 驱动支持尚未验证。
-- 第三方 kext 所需安全设置和诊断启动参数沿用当前配置，使用前应检查。包中保留 Reset NVRAM 菜单，它可能改变固件启动项。
+1. 核对机型、BIOS 和 CPU 拓扑。本 EFI 含本机专用 DSDT、APIC 和 USB 映射，不是通用笔记本 EFI。
+2. 备份**完整现有 EFI**及重要文件。修改内置盘前，准备并实际测试可启动的恢复 U 盘。EFI 备份不包含系统补丁和个人文件。
+3. 下载 **macOS26 分支**，在解压根目录运行 `shasum -a 256 -c SHA256SUMS.txt` 校验文件。
+4. 生成私人 SMBIOS 身份，替换 `PlatformInfo → Generic` 中的 `SystemSerialNumber`、`MLB`、`SystemUUID`、`ROM`。不要共用公开演示值登录 Apple 服务。
+5. 用兼容 OpenCore **1.0.9** 的编辑器检查配置。保留 Wi-Fi 内核范围、`alcid=97` 及必要启动参数，使用匹配的 **ocvalidate 1.0.9** 校验，不能使用旧版 OCC 校验器。
+6. 先用另一只 U 盘测试脱敏 EFI。备份目标 EFI 后再复制 `EFI/BOOT`、`EFI/OC`。**不要格式化磁盘，不要覆盖 `EFI/Microsoft`。** 原可用 U 盘另行保留。
+7. 若系统尚未安装 NVIDIA 组件，按上游方法安装对应系统的驱动。HiDPI 另见 [1401NVDriverHiDpiFix](https://github.com/iivn1026/1401NVDriverHiDpiFix)，遵守该项目自己的备份和回退方法。
+8. Tahoe 缺少 AppleHDA 时，仅有本包 AppleALC 无法恢复声音。先备份系统补丁状态，使用匹配当前系统构建的资源，按所选补丁工具的文档恢复 AppleHDA 和重建兼容内核集合，离线保存 Recovery 回退方法。不要复制另一台机器的内核集合或私人回退包。
+9. U 盘启动且所需设备验证完成后，再部署到内置 EFI，并按上文配置 Windows 和默认启动。
+
+### 回退方法，包括无法进入系统
+
+- **仅 EFI 导致启动失败：** 从 BIOS 启动菜单选择原可用 U 盘的 OpenCore，启动内置 macOS，挂载内置 EFI，恢复原先完整备份的 `EFI/BOOT`、`EFI/OC`，保留 `EFI/Microsoft`，重启后选择内置 OpenCore。
+- **看不到 macOS 或黑屏：** 优先使用已验证的备用 U 盘。按空格查看 Recovery 和辅助入口。NVIDIA 回退工具用于移除 NVIDIA 组件，可能同时失去显卡功能，不能当作通用回退工具。
+- **系统驱动 / 根卷补丁导致启动失败：** 仅换 EFI 不会恢复系统扩展、内核集合、GPU bundle 或已选 APFS 快照。通过 OpenCore 进入恢复环境，解锁并挂载系统卷及数据卷，按**本机对应补丁工具的回退说明**恢复配套原快照和集合。不能把 Sequoia 缓存替换到 Tahoe。
+- **Windows 入口消失：** 移除 Windows 的实例隐藏标记以恢复自动扫描，或修正自定义 Windows 路径。必须保留原 Windows 启动器。
+- 不把 Reset NVRAM 当作常规修复：它会改变默认启动和固件入口，不能撤销系统补丁。验证新系统前不要删除旧快照。
+
+### 已知问题
+
+1. **开机偶发闪屏仍未解决。** 启动显示切换阶段可能闪烁。
+2. Wi-Fi 为 alpha 构建，不宣称纯 WPA3、AWDL / AirDrop 或完整连续互通可用。
+3. 早期 Chrome 与驱动组合使用软件渲染。当前应用加速需要独立验证，识别显卡及 HiDPI 生效不能证明浏览器硬件加速。
+4. 系统或 NVIDIA 更新可能替换修改后的帧缓冲和 AppleHDA。保留准确版本的备份，更新后检查 Wi-Fi 内核范围。
+5. 长期睡眠唤醒、全部 USB 接口、压力测试和其他机型兼容性未完整验证。
 
 ### 脱敏与文件范围
 
-**序列号、MLB、UUID 和 ROM 已替换成新生成的演示值。用于 Apple 服务之前，必须在本机重新生成并替换这四项，不要共用公开身份。** SMBIOS 机型仍为 MacBookPro16,2。这些演示值用于保护私人身份信息，不代表 Apple 服务已激活或具有真实设备身份。
+公开副本重新随机生成序列号、MLB、UUID 和本地管理 ROM。真实身份、磁盘专用 Windows 路径、默认启动 NVRAM、Wi-Fi 密码、日志、旧配置、备份、截图和本机回退文件均排除。保留必要的全零蓝牙初始化值。导出过程不修改实际 EFI。
 
-包中保留启动器、启用的 ACPI 表、UEFI 驱动、kext bundle、配置文件、NVIDIA 回退工具及 OpenCanopy 所需图标、标签和位图字体，另附可选 Windows 显示标记模板、README、上游许可证声明、校验清单和 `.gitignore`。启用的 kext 保留原有插件 / 资源；VoodooI2C 的 Info.plist 包含下述本机控制器适配。
-
-已移除真实三码、MAC / ROM、热点配置、旧蓝牙控制器状态、历史配置与 kext 备份、启动日志、截图、本地脚本和磁盘镜像。当前使用 **OpenCanopy 图形菜单**，包含 GoldenGate 主题图标、标签和位图字体，不附带壁纸、音频辅助资源和未使用的文本字体。Windows 磁盘设备路径已改为禁用模板，NVRAM 中保存的默认启动选择不随包分发。EFI 包不重新分发系统目录中的 NVIDIA 驱动、GPU bundle 和固件。
-
-所有启用文件路径、ACPI 校验和及 OpenCanopy 必需资源均已检查。导出配置通过**与当前 OpenCore 完全相同构建中的 ocvalidate 1.0.9** 校验。OpenCore 核心二进制及启用的硬件 kext 保持原样，身份与磁盘路径脱敏仅作用于公开副本。静态校验不能替代实际启动测试。
-
-### 使用前
-
-1. 核对确切机型、BIOS、核心拓扑和硬件，备份可用 EFI，并保留回退 U 盘。
-2. 在本机替换演示身份和 ROM；检查本机 DSDT 和 USB 映射，不假设它们适用于其他电脑。
-3. 从 NVIDIA 上游项目取得驱动，遵循对应版本安装步骤。本包记录的是已装好驱动的状态。
-4. 按设备型号确认 **macOS 硬盘的 EFI 分区** 后复制；不要套用固定 `diskXsY`，不要覆盖 Windows EFI。
-5. 先验证启动、扬声器 / 耳机、无线、USB 和显示表现，再继续调整。更改 BIOS 核心设置或升级系统后需要重新验证。
-
-### 上游与致谢
-
-使用 [OpenCorePkg](https://github.com/acidanthera/OpenCorePkg)、[OcBinaryData](https://github.com/acidanthera/OcBinaryData)、[Lilu](https://github.com/acidanthera/Lilu)、[AppleALC](https://github.com/acidanthera/AppleALC)、[WhateverGreen](https://github.com/acidanthera/WhateverGreen)、[VirtualSMC](https://github.com/acidanthera/VirtualSMC)、[NVMeFix](https://github.com/acidanthera/NVMeFix)、[RestrictEvents](https://github.com/acidanthera/RestrictEvents)、[BrightnessKeys](https://github.com/acidanthera/BrightnessKeys)、[laobamac/itlwm](https://github.com/laobamac/itlwm)、[USBToolBox](https://github.com/USBToolBox/kext)、[VoodooI2C](https://github.com/VoodooI2C/VoodooI2C)、[VoodooPS2](https://github.com/acidanthera/VoodooPS2) 和 [Realtek RTL8111](https://github.com/Mieze/RTL8111_driver_for_OS_X)。[nullmoth NVIDIA 驱动](https://github.com/nullmoth/nvidia-macos-driver)单独安装。
-
-第三方组件保留作者署名和上游许可证，见 `LICENSES/` 和 `THIRD_PARTY_NOTICES.md`。组合包未对这些组件统一重新授权。
+仅包含启用的 EFI 组件及必要 bundle 资源、当前 GoldenGate 图标和字体、本机 ACPI / USB 映射、可选 Windows 显示标记、许可证和校验清单。第三方条款见 `LICENSES/` 和 `THIRD_PARTY_NOTICES.md`。静态校验通过不代表能在另一台机器上启动。

@@ -16,10 +16,10 @@ This package is a collection of machine configuration files and third-party boot
 | NVMeFix | 1.1.4 | [NVMeFix](https://github.com/acidanthera/NVMeFix), `LICENSES/NVMeFix.txt` |
 | BrightnessKeys | 1.0.4 | [BrightnessKeys](https://github.com/acidanthera/BrightnessKeys), `LICENSES/BrightnessKeys.txt` |
 | RestrictEvents | 1.1.7 | [RestrictEvents](https://github.com/acidanthera/RestrictEvents), `LICENSES/RestrictEvents.txt` |
-| AirportItlwm | 2.4.0 alpha, tested Sequoia binary matching 9bc4b4d | [laobamac/itlwm](https://github.com/laobamac/itlwm), `LICENSES/AirportItlwm.txt`; Intel firmware notice in `LICENSES/Intel-firmware.txt` |
+| AirportItlwm | 2.4.0 alpha; Sequoia binary 9bc4b4d and Tahoe binary bbe368e, gated by Darwin version | [laobamac/itlwm](https://github.com/laobamac/itlwm), `LICENSES/AirportItlwm.txt`; Intel firmware notice in `LICENSES/Intel-firmware.txt` |
 | IntelBluetoothFirmware / IntelBTPatcher | 2.5.0 | [OpenIntelWireless](https://github.com/OpenIntelWireless/IntelBluetoothFirmware), `LICENSES/IntelBluetoothFirmware.txt`; Intel firmware notice retained |
 | BlueToolFixup | 2.7.3 | [BrcmPatchRAM](https://github.com/acidanthera/BrcmPatchRAM), `LICENSES/BrcmPatchRAM.txt` |
-| TXGamingFanBridge / SSDT-TXGFAN | Local experimental ASUS WMI adapter already present in source EFI | Local bridge and ACPI configuration; fan telemetry/profile control not fully verified; no blanket license asserted |
+| TXGamingFanBridge / SSDT-TXGFAN | Local experimental ASUS WMI adapter already present in source EFI | Local bridge and ACPI configuration; limited to Darwin 24 in this config; Tahoe fan control is not claimed; no blanket license asserted |
 | USBToolBox | 1.2.0 | [USBToolBox/kext](https://github.com/USBToolBox/kext); source copyright: Dhinak G, 2020–2021. A separate root license file was not found during preparation. |
 | UTBMap | 1.1, machine-specific map | Codeless USBToolBox configuration from this machine |
 | VoodooI2C | 2.9.1; local exact `8086:7F4F` match and timing addition | [VoodooI2C](https://github.com/VoodooI2C/VoodooI2C), `LICENSES/VoodooI2C.txt` |
